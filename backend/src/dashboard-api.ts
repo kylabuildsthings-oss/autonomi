@@ -75,3 +75,14 @@ export async function getDashboardData(userAddress: Address): Promise<DashboardD
       : null,
   };
 }
+
+/** Fetch USYC price only (no user address required). Used for /api/v1/market and when no wallet is connected. */
+export async function getUsycPrice(): Promise<string> {
+  const client = getPublicClient();
+  const priceRaw = await client.readContract({
+    address: AUTONOMI_ADDRESS,
+    abi: autonomiAbi,
+    functionName: "getUSYCPrice",
+  });
+  return (Number(priceRaw) / 1e18).toFixed(2);
+}

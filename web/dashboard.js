@@ -18,14 +18,27 @@
     if (oracleEl) oracleEl.textContent = "USYC Price: $" + price;
   }
 
-  function renderPosition(position) {
+  function renderPosition(position, noWallet) {
     const card = document.getElementById("position-card");
     const empty = document.getElementById("position-empty");
+    const emptyMsg = document.getElementById("position-empty-message");
     const content = document.getElementById("position-content");
     if (!card) return;
 
+    if (noWallet) {
+      if (empty) {
+        empty.hidden = false;
+        if (emptyMsg) emptyMsg.textContent = "Connect your wallet to view your position and use the app.";
+      }
+      if (content) content.hidden = true;
+      return;
+    }
+
     if (!position || !position.active) {
-      if (empty) empty.hidden = false;
+      if (empty) {
+        empty.hidden = false;
+        if (emptyMsg) emptyMsg.textContent = "No active position. Deposit USYC and borrow USDC to get started.";
+      }
       if (content) content.hidden = true;
       return;
     }
@@ -126,13 +139,21 @@
     setLoading(true);
     hideError();
 
+    if (!addressParam || !/^0x[a-fA-F0-9]{40}$/.test(addressParam)) {
+      setLoading(false);
+      renderPrice("—");
+      renderPosition(null, true);
+      renderSmsStatus(null);
+      loadMarketPrice();
+      loadStats();
+      return;
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
-      const url = addressParam
-        ? API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam)
-        : API_BASE + "/api/dashboard";
+      const url = API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam);
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
 
@@ -145,7 +166,7 @@
       const address = data.address || addressParam;
       if (window.AutonomiDashboard) window.AutonomiDashboard._lastAddress = address;
       renderPrice(data.usycPrice);
-      renderPosition(data.position);
+      renderPosition(data.position, false);
       loadSmsStatus(address);
       loadStats();
     } catch (e) {
@@ -159,7 +180,7 @@
           : (e.message || "Could not load dashboard.");
       setError(message);
       renderPrice("—");
-      renderPosition(null);
+      renderPosition(null, false);
       renderStats(null);
       renderSmsStatus(null);
     } finally {
@@ -167,11 +188,24 @@
     }
   }
 
+  function loadMarketPrice() {
+    fetch(API_BASE + "/api/v1/market")
+      .then(function (res) { return res.ok ? res.json() : Promise.reject(); })
+      .then(function (body) {
+        var price = body && body.data && body.data.usycPrice;
+        if (price) renderPrice(price);
+      })
+      .catch(function () {});
+  }
+
   function refreshData() {
     var addressParam = getCurrentAddress();
-    var url = addressParam
-      ? API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam)
-      : API_BASE + "/api/dashboard";
+    if (!addressParam || !/^0x[a-fA-F0-9]{40}$/.test(addressParam)) {
+      loadMarketPrice();
+      loadStats();
+      return;
+    }
+    var url = API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam);
     fetch(url)
       .then(function (res) { return res.ok ? res.json() : Promise.reject(new Error("Fetch failed")); })
       .then(function (data) {

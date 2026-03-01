@@ -9,11 +9,11 @@ const CHAIN_ID = Number(process.env["ARC_CHAIN_ID"] ?? 5042002);
 const CHAIN_NAME = "Arc Testnet";
 const WATCHED_COUNT = process.env["WATCH_ADDRESSES"]
   ? process.env["WATCH_ADDRESSES"].split(",").filter((s) => s.trim()).length
-  : 1;
+  : 0;
 
+/** No default wallet: address must come from client (connect wallet). Optional env for server-side use only. */
 const DEFAULT_DASHBOARD_ADDRESS = (process.env["WATCH_ADDRESSES"]?.split(",")[0]?.trim() ||
-  process.env["AUTONOMI_DEFAULT_VIEWER"] ||
-  "0x6C9365Ca168953BEEE77Cd8332a1d3B5Ae557515") as `0x${string}`;
+  process.env["AUTONOMI_DEFAULT_VIEWER"]) as `0x${string}` | undefined;
 
 /** Response envelope for API v1 */
 function apiV1Json(
@@ -84,9 +84,9 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && parsed.pathname === "/api/dashboard") {
     setCors(res);
-    const address = (parsed.searchParams.get("address") || DEFAULT_DASHBOARD_ADDRESS).trim() as `0x${string}`;
+    const address = (parsed.searchParams.get("address") || DEFAULT_DASHBOARD_ADDRESS || "").trim() as `0x${string}`;
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-      sendJson(res, 400, { error: "Invalid or missing address" });
+      sendJson(res, 400, { error: "Address required. Connect your wallet to use the app." });
       return;
     }
     try {
@@ -320,10 +320,10 @@ const server = createServer(async (req, res) => {
 
     if (req.method === "GET" && p === "/api/v1/market") {
       try {
-        const { getDashboardData } = await import("./dashboard-api.js");
-        const data = await getDashboardData(DEFAULT_DASHBOARD_ADDRESS);
+        const { getUsycPrice } = await import("./dashboard-api.js");
+        const usycPrice = await getUsycPrice();
         apiV1Json(res, 200, {
-          usycPrice: data.usycPrice,
+          usycPrice,
           contractAddress: CONTRACT_ADDRESS || null,
           chainId: CHAIN_ID,
           chainName: CHAIN_NAME,

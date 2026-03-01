@@ -8,7 +8,7 @@ import { getDashboardData } from "../dashboard-api.js";
 
 const WATCH_ADDRESSES: Address[] = process.env["WATCH_ADDRESSES"]
   ? (process.env["WATCH_ADDRESSES"].split(",").map((a) => a.trim()).filter(Boolean) as Address[])
-  : (["0x6C9365Ca168953BEEE77Cd8332a1d3B5Ae557515"] as Address[]);
+  : [];
 
 const DEFAULT_YIELD = Number(process.env["USYC_YIELD_APY"]) || 5.02;
 const YIELD_SOURCE = process.env["USYC_YIELD_SOURCE"] || "Circle Treasury";
