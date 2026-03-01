@@ -14,7 +14,11 @@
     "test:agent:run": "node dist/test-agent.js",
     "test:agent:ping": "tsc && node dist/test-agent-ping.js",
     "test:agent:tsx": "tsx src/test-agent.ts",
-    "test:sms": "tsc && node dist/test-sms.js"
+    "test:sms": "tsc && node dist/test-sms.js",
+    "db:init": "node scripts/init-db.mjs",
+    "test:api": "node scripts/test-api.mjs",
+    "sdk:spec": "npm run build && node scripts/export-openapi.mjs",
+    "sdk:ts": "npm run sdk:spec && npx @hey-api/openapi-ts -i openapi.json -o ../sdk/typescript"
   },
   "keywords": [],
   "author": "",
@@ -22,12 +26,14 @@
   "dependencies": {
     "@circle-fin/developer-controlled-wallets": "^10.1.0",
     "axios": "^1.7.0",
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^16.4.0",
     "node-cron": "^3.0.3",
     "twilio": "^5.12.2",
     "viem": "^2.21.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.0.0",
     "@types/node-cron": "^3.0.11",
     "concurrently": "^9.2.1",

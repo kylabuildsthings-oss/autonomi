@@ -3,8 +3,11 @@ import { createPublicClient, createWalletClient, http, type Address } from "viem
 import { privateKeyToAccount } from "viem/accounts";
 import cron from "node-cron";
 import { autonomiAbi } from "./abi/autonomi.js";
-import { getPhone } from "./sms/registry.js";
+import { getEntry, recordAlertSent } from "./sms/registry.js";
 import { sendAlert } from "./sms/twilio-client.js";
+import { getRebalanceMessage, getWarningMessage, getDailySummaryMessage, getPriceAlertMessage } from "./sms/templates.js";
+import { dispatchWebhooks } from "./webhooks/dispatch.js";
+import { buildRebalancePayload, buildWarningPayload, buildPricePayload } from "./webhooks/payloads.js";
 
 const ARC_CHAIN_ID = Number(process.env["ARC_CHAIN_ID"] ?? 5042002);
 const AUTONOMI_ADDRESS = (process.env["AUTONOMI_ADDRESS"] ?? "0x4b7f00672B96B489F227469f9c106623d5de5779") as Address;
@@ -40,6 +43,7 @@ export class AutonomiAgent {
   private walletClient;
   private account;
   private contractAddress: Address;
+  private lastPrice: bigint | null = null;
 
   constructor(contractAddress: Address, agentPrivateKey: `0x${string}`) {
     const rpcUrl = process.env["ARC_RPC_URL"] ?? "https://rpc.testnet.arc.network";
@@ -109,6 +113,56 @@ export class AutonomiAgent {
     const price = await this.getUSYCPrice();
     log("info", "USYC price from contract", { price: price.toString() });
 
+    // Large price move (>10%): notify users with largePriceMoves preference
+    if (this.lastPrice !== null && this.lastPrice > 0n) {
+      const pPrev = Number(this.lastPrice);
+      const pCur = Number(price);
+      const pct = Math.abs(pCur - pPrev) / pPrev;
+        if (pct >= 0.1) {
+        const prevF = (pPrev / 1e18).toFixed(2);
+        const curF = (pCur / 1e18).toFixed(2);
+        const changePct = (pct * 100).toFixed(1);
+        const pricePayload = buildPricePayload({
+          oldPrice: prevF,
+          newPrice: curF,
+          changePct,
+          direction: pCur >= pPrev ? "up" : "down",
+          contractAddress: this.contractAddress,
+          chainId: ARC_CHAIN_ID,
+        });
+        dispatchWebhooks("price", pricePayload).catch((e) =>
+          log("error", "Webhook dispatch (price) failed", { error: String(e) })
+        );
+        for (const user of TEST_ADDRESSES) {
+          const entry = await getEntry(user);
+          if (entry?.preferences.largePriceMoves && entry.phone) {
+            const direction = pCur >= pPrev ? "up" : "down";
+            const msg = getPriceAlertMessage({
+              oldPrice: prevF,
+              newPrice: curF,
+              change: changePct,
+              price: curF,
+              direction,
+              hourChange: changePct,
+              low: prevF,
+              high: curF,
+              ltvImpact: changePct,
+              volume: "—",
+              spread: "—",
+              reserves: "—",
+              nextCheck: "300",
+              yield: "—",
+              oldLTV: "—",
+              newLTV: "—",
+            });
+            const result = await sendAlert(entry.phone, msg);
+            if (result.ok) await recordAlertSent(user);
+          }
+        }
+      }
+    }
+    this.lastPrice = price;
+
     for (const user of TEST_ADDRESSES) {
       try {
         const [usycDeposited, usdcBorrowed, , , active] = await this.getPosition(user);
@@ -141,6 +195,26 @@ export class AutonomiAgent {
         });
 
         if (ltvForThreshold >= LTV_REBALANCE_THRESHOLD_BPS) {
+          const warningPayload = buildWarningPayload({
+            user,
+            ltvBps: ltvForThreshold,
+            price: (Number(price) / 1e18).toFixed(2),
+            contractAddress: this.contractAddress,
+            chainId: ARC_CHAIN_ID,
+          });
+          dispatchWebhooks("warning", warningPayload).catch((e) =>
+            log("error", "Webhook dispatch (warning) failed", { error: String(e) })
+          );
+          const entry = await getEntry(user);
+          if (entry?.preferences.warnings && entry.phone) {
+            const msg = getWarningMessage({
+              ltv: String(ltvForThreshold / 100),
+              txHash: "pending",
+              price: (Number(price) / 1e18).toFixed(2),
+            });
+            const result = await sendAlert(entry.phone, msg);
+            if (result.ok) await recordAlertSent(user);
+          }
           log("info", "LTV above threshold, calling autoRebalance", {
             user,
             ltvBps: ltvForThreshold,
@@ -160,6 +234,13 @@ export class AutonomiAgent {
       log("error", "No wallet client for sending tx");
       return;
     }
+    const [usycDeposited, usdcBorrowed] = await this.getPosition(user);
+    const price = await this.getUSYCPrice();
+    const priceFormatted = (Number(price) / 1e18).toFixed(2);
+    const collateral = (Number(usycDeposited) / 1e6).toFixed(0);
+    const borrowed = (Number(usdcBorrowed) / 1e6).toFixed(0);
+    const ltvBefore = await this.getCurrentLTV(user);
+
     const hash = await this.walletClient.writeContract({
       address: this.contractAddress,
       abi: autonomiAbi,
@@ -169,20 +250,88 @@ export class AutonomiAgent {
     });
     log("info", "autoRebalance tx sent", { user, txHash: hash });
 
-    const phone = await getPhone(user);
-    if (phone) {
-      const targetPct = Number(targetLTV) / 100;
-      const msg = `Autonomi: Your position was rebalanced to ${targetPct}% LTV. Tx: ${hash}`;
-      await sendAlert(phone, msg);
+    const rebalancePayload = buildRebalancePayload({
+      user,
+      txHash: hash,
+      oldLTVBps: Number(ltvBefore),
+      newLTVBps: Number(targetLTV),
+      collateral,
+      borrowed,
+      price: priceFormatted,
+      contractAddress: this.contractAddress,
+      chainId: ARC_CHAIN_ID,
+    });
+    dispatchWebhooks("rebalance", rebalancePayload).catch((e) =>
+      log("error", "Webhook dispatch (rebalance) failed", { error: String(e) })
+    );
+
+    const entry = await getEntry(user);
+    if (entry?.preferences.rebalances && entry.phone) {
+      const msg = getRebalanceMessage({
+        txHash: hash,
+        newLTV: String(Number(targetLTV) / 100),
+        oldLTV: String(Number(ltvBefore) / 100),
+        collateral,
+        borrowed,
+        price: priceFormatted,
+        amount: "—",
+        gas: "—",
+      });
+      const result = await sendAlert(entry.phone, msg);
+      if (result.ok) await recordAlertSent(user);
     }
   }
 
   startCron(): void {
-    // Every 5 minutes
+    // Every 5 minutes: monitor and rebalance
     cron.schedule("*/5 * * * *", () => {
       this.monitorAndRebalance().catch((e) => log("error", "Cron failed", { error: String(e) }));
     });
-    log("info", "Cron scheduled: every 5 minutes");
+    // Daily summary at 9am
+    cron.schedule("0 9 * * *", () => {
+      this.sendDailySummaries().catch((e) => log("error", "Daily summary failed", { error: String(e) }));
+    });
+    log("info", "Cron scheduled: every 5 min (monitor), 9am (daily summary)");
+  }
+
+  async sendDailySummaries(): Promise<void> {
+    const price = await this.getUSYCPrice();
+    const priceFormatted = (Number(price) / 1e18).toFixed(2);
+    const date = new Date().toISOString().slice(0, 10);
+    for (const user of TEST_ADDRESSES) {
+      const entry = await getEntry(user);
+      if (!entry?.preferences.dailySummary || !entry.phone) continue;
+      try {
+        const [usycDeposited, usdcBorrowed, , , active] = await this.getPosition(user);
+        const ltv = active ? await this.getCurrentLTV(user) : 0n;
+        const ltvPct = (Number(ltv) / 100).toFixed(1);
+        const usyc = (Number(usycDeposited) / 1e6).toFixed(0);
+        const usdc = (Number(usdcBorrowed) / 1e6).toFixed(0);
+        const msg = getDailySummaryMessage({
+          date,
+          position: usyc,
+          borrowed: usdc,
+          ltv: ltvPct,
+          price: priceFormatted,
+          avgLTV: ltvPct,
+          rebalances: "0",
+          avgAmount: "—",
+          volatility: "—",
+          efficiency: "—",
+          protected: "—",
+          startLTV: ltvPct,
+          endLTV: ltvPct,
+          highLTV: ltvPct,
+          lowLTV: ltvPct,
+          gasSpent: "—",
+          yieldEarned: "—",
+        });
+        const result = await sendAlert(entry.phone, msg);
+        if (result.ok) await recordAlertSent(user);
+      } catch (e) {
+        log("error", "Daily summary for user failed", { user, error: String(e) });
+      }
+    }
   }
 }
 

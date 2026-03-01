@@ -1,0 +1,11 @@
+{
+  "name": "autonomi-sdk-typescript",
+  "version": "1.0.0",
+  "description": "Autonomi REST API v1 client (generated from OpenAPI)",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "build": "tsc --noEmit"
+  }
+}

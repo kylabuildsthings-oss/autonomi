@@ -8,6 +8,7 @@ out/
 dist/
 cache/
 broadcast/
+backend/openapi.json
 
 # Env and secrets (never commit private keys)
 .env

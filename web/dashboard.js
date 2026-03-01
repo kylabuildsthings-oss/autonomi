@@ -92,6 +92,7 @@
 
       const data = await res.json();
       const address = data.address || addressParam;
+      if (window.AutonomiDashboard) window.AutonomiDashboard._lastAddress = address;
       renderPrice(data.usycPrice);
       renderPosition(data.position);
       loadSmsStatus(address);
@@ -107,124 +108,74 @@
       setError(message);
       renderPrice("—");
       renderPosition(null);
-      renderSmsStatus(null, null);
+      renderSmsStatus(null);
     } finally {
       setLoading(false);
     }
   }
 
-  function renderSmsStatus(registered, maskedPhone) {
+  function renderSmsStatus(data) {
     const statusEl = document.getElementById("sms-status-text");
-    const formEl = document.getElementById("sms-register-form");
+    const linkEl = document.getElementById("sms-dashboard-link");
     if (!statusEl) return;
-    if (registered === null) {
+    if (data === null || data === undefined) {
       statusEl.textContent = "SMS alerts: connect backend to register.";
-      if (formEl) formEl.classList.add("hidden");
+      if (linkEl) linkEl.href = "alerts.html";
       return;
     }
-    if (registered && maskedPhone) {
-      statusEl.textContent = "Alerts active for " + maskedPhone;
-      if (formEl) formEl.classList.add("hidden");
+    if (data.registered && data.maskedPhone) {
+      statusEl.textContent = "Alerts active for " + data.maskedPhone;
+      if (linkEl && window.AutonomiDashboard && window.AutonomiDashboard._lastAddress) {
+        linkEl.href = "alerts.html?address=" + encodeURIComponent(window.AutonomiDashboard._lastAddress);
+      } else if (linkEl) linkEl.href = "alerts.html";
     } else {
-      statusEl.textContent = "Get SMS when the agent rebalances your position.";
-      if (formEl) formEl.classList.remove("hidden");
+      statusEl.textContent = "Not registered. Manage alerts to add a phone.";
+      if (linkEl && window.AutonomiDashboard && window.AutonomiDashboard._lastAddress) {
+        linkEl.href = "alerts.html?address=" + encodeURIComponent(window.AutonomiDashboard._lastAddress);
+      } else if (linkEl) linkEl.href = "alerts.html";
     }
   }
 
   async function loadSmsStatus(address) {
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-      renderSmsStatus(null, null);
+      renderSmsStatus(null);
       return;
     }
     try {
       const res = await fetch(API_BASE + "/api/sms/status?address=" + encodeURIComponent(address));
       const data = await res.json();
-      renderSmsStatus(data.registered, data.maskedPhone || null);
+      renderSmsStatus(data);
     } catch {
-      renderSmsStatus(null, null);
+      renderSmsStatus(null);
     }
   }
 
   function bindSmsRegister() {
     const btn = document.getElementById("sms-register-btn");
-    const phoneInput = document.getElementById("sms-phone");
-    const errorEl = document.getElementById("sms-register-error");
-    if (!btn || !phoneInput) return;
+    if (!btn) return;
+    // Full SMS UI is on alerts page; no-op on dashboard
+  }
 
-    btn.addEventListener("click", async function () {
-      const addressParam = new URLSearchParams(window.location.search).get("address") || "";
-      const url = addressParam
-        ? API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam)
-        : API_BASE + "/api/dashboard";
-      let address = addressParam;
-      if (!address) {
-        try {
-          const r = await fetch(url);
-          const data = await r.json();
-          address = data.address;
-        } catch (e) {
-          if (errorEl) {
-            errorEl.textContent = "Could not get wallet address. Add ?address=0x... to the URL.";
-            errorEl.classList.remove("hidden");
-          }
-          return;
-        }
-      }
-      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-        if (errorEl) {
-          errorEl.textContent = "Invalid or missing address.";
-          errorEl.classList.remove("hidden");
-        }
-        return;
-      }
+  function getCurrentAddress() {
+    const addressParam = new URLSearchParams(window.location.search).get("address") || "";
+    return addressParam || (window.AutonomiDashboard && window.AutonomiDashboard._lastAddress) || "";
+  }
 
-      const phone = phoneInput.value.trim().replace(/\s/g, "");
-      if (!phone || phone.length < 10) {
-        if (errorEl) {
-          errorEl.textContent = "Enter a valid phone number (e.g. +15551234567).";
-          errorEl.classList.remove("hidden");
-        }
-        return;
-      }
-
-      if (errorEl) errorEl.classList.add("hidden");
-      btn.disabled = true;
-
-      try {
-        const res = await fetch(API_BASE + "/api/sms/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, phone }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          if (errorEl) {
-            errorEl.textContent = data.error || "Registration failed.";
-            errorEl.classList.remove("hidden");
-          }
-          return;
-        }
-        await loadSmsStatus(address);
-      } catch (e) {
-        if (errorEl) {
-          errorEl.textContent = "Could not reach the API.";
-          errorEl.classList.remove("hidden");
-        }
-      } finally {
-        btn.disabled = false;
-      }
-    });
+  function bindSmsPreferencesAndTest() {
+    // Full SMS UI is on alerts page; no-op on dashboard
   }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       load();
       bindSmsRegister();
+      bindSmsPreferencesAndTest();
     });
   } else {
     load();
     bindSmsRegister();
+    bindSmsPreferencesAndTest();
   }
 
-  window.AutonomiDashboard = { reload: load };
+  window.AutonomiDashboard = { reload: load, _lastAddress: "" };
 })();

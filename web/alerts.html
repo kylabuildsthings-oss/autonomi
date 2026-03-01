@@ -65,19 +65,51 @@
       <h1 class="page-title font-heading text-base uppercase tracking-wider mb-4 text-sand-text">SMS &amp; Notifications</h1>
 
       <div class="card stack">
-        <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0 mb-2">📟 Alerts</p>
-        <p class="text-base md:text-lg m-0 mb-4">Alerts active for +1 (555) ***-1234</p>
-        <div class="space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row">
-            <input type="checkbox" checked class="rounded border-sand-border w-4 h-4 md:w-5 md:h-5" />
-            <span>Transaction notifications</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row">
-            <input type="checkbox" checked class="rounded border-sand-border w-4 h-4 md:w-5 md:h-5" />
-            <span>Account security alerts</span>
-          </label>
+        <h2 class="card__title m-0">📟 SMS Alerts</h2>
+        <p id="sms-status-text" class="text-sm text-sand-text-muted m-0 mb-3">Loading…</p>
+
+        <!-- Not registered: register form -->
+        <div id="sms-register-form" class="hidden">
+          <label class="block text-sm text-sand-text-muted mb-1">Phone (E.164, e.g. +15551234567)</label>
+          <input type="tel" id="sms-phone" placeholder="+1 555 123 4567" class="w-full max-w-xs px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base mb-3" />
+          <p class="text-xs text-sand-text-muted mb-2">Alert preferences:</p>
+          <div class="space-y-1.5 mb-3">
+            <label class="flex items-center gap-2 cursor-pointer text-sm min-touch toggle-row"><input type="checkbox" id="reg-rebalances" checked class="rounded border-sand-border w-4 h-4" /><span>Rebalances (when agent acts)</span></label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm min-touch toggle-row"><input type="checkbox" id="reg-warnings" checked class="rounded border-sand-border w-4 h-4" /><span>Warnings (LTV &gt; 65%)</span></label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm min-touch toggle-row"><input type="checkbox" id="reg-largePriceMoves" checked class="rounded border-sand-border w-4 h-4" /><span>Large price moves (&gt;10%)</span></label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm min-touch toggle-row"><input type="checkbox" id="reg-dailySummary" checked class="rounded border-sand-border w-4 h-4" /><span>Daily summary (9am)</span></label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm min-touch toggle-row"><input type="checkbox" id="reg-testAlerts" checked class="rounded border-sand-border w-4 h-4" /><span>Test alerts</span></label>
+          </div>
+          <button type="button" id="sms-register-btn" class="btn btn--primary">Register for SMS alerts</button>
+          <p id="sms-register-error" class="text-sm text-red-400 mt-2 m-0 hidden"></p>
         </div>
-        <a href="#" class="btn btn--primary mt-4 inline-block no-underline min-touch flex items-center justify-center w-fit">Sync Settings</a>
+
+        <!-- Registered: status, change number, preferences, test -->
+        <div id="sms-status-view" class="hidden">
+          <p id="sms-masked-phone" class="text-base font-medium text-sand-text m-0 mb-1"></p>
+          <p id="sms-last-alert" class="text-xs text-sand-text-muted m-0 mb-3"></p>
+
+          <div class="mb-4">
+            <button type="button" id="sms-change-number-btn" class="text-sm text-sand-orange hover:underline bg-transparent border-0 cursor-pointer p-0">Change number</button>
+            <div id="sms-change-number-form" class="hidden mt-2">
+              <label class="block text-sm text-sand-text-muted mb-1">New phone (E.164)</label>
+              <input type="tel" id="sms-new-phone" placeholder="+1 555 123 4567" class="w-full max-w-xs px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base mb-2" />
+              <button type="button" id="sms-update-phone-btn" class="btn btn--secondary text-sm">Update number</button>
+              <p id="sms-change-number-error" class="text-sm text-red-400 mt-2 m-0 hidden"></p>
+            </div>
+          </div>
+
+          <p class="text-xs text-sand-text-muted mb-1">Preferences:</p>
+          <div id="sms-prefs-toggles" class="space-y-1.5 mb-4">
+            <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row"><input type="checkbox" id="pref-rebalances" class="sms-pref-toggle rounded border-sand-border w-4 h-4 md:w-5 md:h-5" data-pref="rebalances" /><span>Rebalances</span></label>
+            <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row"><input type="checkbox" id="pref-warnings" class="sms-pref-toggle rounded border-sand-border w-4 h-4 md:w-5 md:h-5" data-pref="warnings" /><span>Warnings (LTV &gt; 65%)</span></label>
+            <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row"><input type="checkbox" id="pref-largePriceMoves" class="sms-pref-toggle rounded border-sand-border w-4 h-4 md:w-5 md:h-5" data-pref="largePriceMoves" /><span>Large price moves (&gt;10%)</span></label>
+            <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row"><input type="checkbox" id="pref-dailySummary" class="sms-pref-toggle rounded border-sand-border w-4 h-4 md:w-5 md:h-5" data-pref="dailySummary" /><span>Daily summary (9am)</span></label>
+            <label class="flex items-center gap-3 cursor-pointer text-base md:text-lg min-touch toggle-row"><input type="checkbox" id="pref-testAlerts" class="sms-pref-toggle rounded border-sand-border w-4 h-4 md:w-5 md:h-5" data-pref="testAlerts" /><span>Test alerts</span></label>
+          </div>
+          <button type="button" id="sms-test-btn" class="btn btn--primary">Send test SMS</button>
+          <p id="sms-test-message" class="text-sm mt-2 m-0 hidden"></p>
+        </div>
       </div>
 
       <p class="text-sm text-sand-text-muted mt-6 m-0">Secured by Circle Smart Contracts</p>
@@ -101,5 +133,6 @@
       a.addEventListener('click', function() { document.getElementById('mobile-menu').classList.add('hidden'); document.getElementById('mobile-menu').setAttribute('aria-hidden', 'true'); });
     });
   </script>
+  <script src="alerts.js"></script>
 </body>
 </html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Developer — API Keys — Autonomi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sand: {
+              bg: '#1a1310',
+              'bg-card': 'rgba(26, 19, 16, 0.85)',
+              ochre: '#d97706',
+              orange: '#f59e0b',
+              muted: '#78350f',
+              border: '#92400e',
+              text: '#fef3c7',
+              'text-muted': '#a8a29e',
+            }
+          },
+          fontFamily: { heading: ['"Space Grotesk"', 'monospace'] },
+          minHeight: { touch: '44px' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="design-tokens.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <style>
+    body { font-size: 16px; }
+    .card { background: var(--sand-bg-card); border: 1px solid var(--sand-border); border-radius: var(--radius-pixel); }
+    .btn--primary { background: var(--sand-orange); color: var(--sand-bg); }
+    .btn--secondary { background: transparent; border: 1px solid var(--sand-border); color: var(--sand-text); }
+    .btn { padding: 0.5rem 1rem; border-radius: var(--radius-pixel); font-weight: 600; cursor: pointer; }
+    .font-heading { font-family: var(--font-heading); }
+    input, select { background: var(--sand-bg); border: 1px solid var(--sand-border); color: var(--sand-text); padding: 0.5rem; border-radius: var(--radius-pixel); width: 100%; }
+    label { display: block; margin-bottom: 0.25rem; color: var(--sand-text-muted); font-size: 0.875rem; }
+    .form-group { margin-bottom: 1rem; }
+    .error { color: #f87171; font-size: 0.875rem; margin-top: 0.5rem; }
+    .success { color: #22c55e; font-size: 0.875rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body class="bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
+  <header class="sticky top-0 z-40 w-full border-b border-sand-border bg-sand-bg-card backdrop-blur-sm px-4 py-3 md:px-6 lg:px-12">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <a href="index.html" class="font-heading font-bold text-lg text-sand-text no-underline">Autonomi</a>
+      <div class="flex items-center gap-4">
+        <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
+        <a href="dashboard.html" class="btn btn--primary no-underline">Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12">
+    <h1 class="font-heading font-bold text-2xl md:text-3xl text-sand-text mb-2">Developer</h1>
+    <p class="text-sand-text-muted mb-8">Create and manage API keys for the Autonomi REST API. Use keys in the <code class="bg-sand-muted px-1 rounded">Authorization: Bearer &lt;key&gt;</code> header.</p>
+
+    <!-- API base URL (optional) -->
+    <div class="card p-4 mb-6">
+      <label for="api-base">API base URL (leave empty for same origin)</label>
+      <input type="text" id="api-base" placeholder="https://api.example.com" class="max-w-md" />
+    </div>
+
+    <!-- Create key -->
+    <section class="card p-6 mb-8" aria-labelledby="create-title">
+      <h2 id="create-title" class="font-heading font-bold text-xl mb-4">Create API key</h2>
+      <form id="create-key-form" class="space-y-4">
+        <div class="form-group">
+          <label for="user_address">Wallet address (0x…)</label>
+          <input type="text" id="user_address" name="user_address" required pattern="0x[a-fA-F0-9]{40}" placeholder="0x..." />
+        </div>
+        <div class="form-group">
+          <label for="key_name">Name</label>
+          <input type="text" id="key_name" name="name" placeholder="My API Key" value="API Key" />
+        </div>
+        <div class="form-group">
+          <label for="rate_limit">Rate limit (requests per minute)</label>
+          <input type="number" id="rate_limit" name="rate_limit" min="1" max="10000" value="100" />
+        </div>
+        <button type="submit" class="btn btn--primary">Create key</button>
+      </form>
+      <p id="create-error" class="error" hidden></p>
+      <div id="create-result" class="mt-4 p-4 bg-sand-muted rounded border border-sand-border" hidden>
+        <p class="text-sm text-sand-text-muted mb-2">Save this key — it won't be shown again.</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <code id="raw-key" class="break-all text-sand-text flex-1 min-w-0"></code>
+          <button type="button" id="copy-key" class="btn btn--secondary shrink-0">Copy</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- List & revoke keys -->
+    <section class="card p-6" aria-labelledby="list-title">
+      <h2 id="list-title" class="font-heading font-bold text-xl mb-4">Your API keys</h2>
+      <div class="form-group mb-4">
+        <label for="list_address">Wallet address</label>
+        <div class="flex gap-2 flex-wrap">
+          <input type="text" id="list_address" placeholder="0x..." class="flex-1 min-w-200" />
+          <button type="button" id="list-keys-btn" class="btn btn--secondary">List keys</button>
+        </div>
+      </div>
+      <p id="list-error" class="error" hidden></p>
+      <p id="list-success" class="success" hidden></p>
+      <div id="keys-table-wrap" class="overflow-x-auto" hidden>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-sand-border text-left text-sand-text-muted">
+              <th class="py-2 pr-4">Name</th>
+              <th class="py-2 pr-4">Rate limit</th>
+              <th class="py-2 pr-4">Created</th>
+              <th class="py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="keys-tbody" class="text-sand-text"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function apiBase() {
+      const v = document.getElementById('api-base').value.trim();
+      return v ? v.replace(/\/$/, '') : '';
+    }
+
+    document.getElementById('create-key-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('create-error');
+      const resEl = document.getElementById('create-result');
+      errEl.hidden = true;
+      resEl.hidden = true;
+      const user_address = document.getElementById('user_address').value.trim();
+      const name = document.getElementById('key_name').value.trim() || 'API Key';
+      const rate_limit = parseInt(document.getElementById('rate_limit').value, 10) || 100;
+      const base = apiBase();
+      const url = base ? base + '/api/v1/auth/keys' : '/api/v1/auth/keys';
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_address, name, rate_limit })
+        });
+        const data = await res.json().catch(function() { return {}; });
+        if (!res.ok) {
+          errEl.textContent = data.error || res.statusText || 'Failed to create key';
+          errEl.hidden = false;
+          return;
+        }
+        document.getElementById('raw-key').textContent = data.data && data.data.rawKey ? data.data.rawKey : (data.rawKey || '');
+        resEl.hidden = false;
+      } catch (err) {
+        errEl.textContent = err.message || 'Network error';
+        errEl.hidden = false;
+      }
+    });
+
+    document.getElementById('copy-key').addEventListener('click', function() {
+      const key = document.getElementById('raw-key').textContent;
+      if (key && navigator.clipboard) {
+        navigator.clipboard.writeText(key);
+        this.textContent = 'Copied!';
+        var self = this;
+        setTimeout(function() { self.textContent = 'Copy'; }, 2000);
+      }
+    });
+
+    document.getElementById('list-keys-btn').addEventListener('click', async function() {
+      const address = document.getElementById('list_address').value.trim();
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        document.getElementById('list-error').textContent = 'Invalid wallet address';
+        document.getElementById('list-error').hidden = false;
+        return;
+      }
+      const errEl = document.getElementById('list-error');
+      const successEl = document.getElementById('list-success');
+      const wrap = document.getElementById('keys-table-wrap');
+      const tbody = document.getElementById('keys-tbody');
+      errEl.hidden = true;
+      successEl.hidden = true;
+      const base = apiBase();
+      const url = base ? base + '/api/v1/auth/keys?address=' + encodeURIComponent(address) : '/api/v1/auth/keys?address=' + encodeURIComponent(address);
+      try {
+        const res = await fetch(url);
+        const data = await res.json().catch(function() { return {}; });
+        if (!res.ok) {
+          errEl.textContent = data.error || res.statusText || 'Failed to list keys';
+          errEl.hidden = false;
+          wrap.hidden = true;
+          return;
+        }
+        const keys = (data.data && data.data.keys) ? data.data.keys : (data.keys || []);
+        tbody.innerHTML = '';
+        keys.forEach(function(k) {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-sand-border';
+          tr.innerHTML =
+            '<td class="py-2 pr-4">' + (k.name || '—') + '</td>' +
+            '<td class="py-2 pr-4">' + (k.rate_limit != null ? k.rate_limit : '—') + '/min</td>' +
+            '<td class="py-2 pr-4 text-sand-text-muted">' + (k.created_at ? new Date(k.created_at).toLocaleDateString() : '—') + '</td>' +
+            '<td class="py-2"><button type="button" class="revoke-btn btn btn--secondary text-xs" data-id="' + k.id + '" data-address="' + address + '">Revoke</button></td>';
+          tbody.appendChild(tr);
+        });
+        wrap.hidden = keys.length === 0;
+        if (keys.length === 0) {
+          successEl.textContent = 'No API keys for this address.';
+          successEl.hidden = false;
+        }
+        tbody.querySelectorAll('.revoke-btn').forEach(function(btn) {
+          btn.addEventListener('click', revokeKey);
+        });
+      } catch (err) {
+        errEl.textContent = err.message || 'Network error';
+        errEl.hidden = false;
+        wrap.hidden = true;
+      }
+    });
+
+    async function revokeKey() {
+      const id = this.getAttribute('data-id');
+      const address = this.getAttribute('data-address');
+      const base = apiBase();
+      const url = base ? base + '/api/v1/auth/keys/' + id + '?address=' + encodeURIComponent(address) : '/api/v1/auth/keys/' + id + '?address=' + encodeURIComponent(address);
+      try {
+        const res = await fetch(url, { method: 'DELETE' });
+        const data = await res.json().catch(function() { return {}; });
+        if (!res.ok) {
+          document.getElementById('list-error').textContent = data.error || res.statusText || 'Failed to revoke';
+          document.getElementById('list-error').hidden = false;
+          return;
+        }
+        document.getElementById('list-keys-btn').click();
+      } catch (err) {
+        document.getElementById('list-error').textContent = err.message || 'Network error';
+        document.getElementById('list-error').hidden = false;
+      }
+    }
+  </script>
+</body>
+</html>

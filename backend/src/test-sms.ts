@@ -5,6 +5,7 @@
  */
 import "dotenv/config.js";
 import { sendAlert } from "./sms/twilio-client.js";
+import { getTestMessage } from "./sms/templates.js";
 
 const phone = process.argv[2]?.trim() || process.env["TEST_SMS_PHONE"]?.trim();
 if (!phone) {
@@ -13,6 +14,7 @@ if (!phone) {
   process.exit(1);
 }
 
-const body = "Autonomi test — if you got this, SMS alerts are working.";
-const ok = await sendAlert(phone, body);
-process.exit(ok ? 0 : 1);
+const body = getTestMessage();
+const result = await sendAlert(phone, body);
+if (!result.ok) console.error(result.error);
+process.exit(result.ok ? 0 : 1);

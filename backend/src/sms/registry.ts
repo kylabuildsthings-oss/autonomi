@@ -1,5 +1,5 @@
 /**
- * SMS registry — store wallet address → phone number for rebalance alerts.
+ * SMS registry — wallet address → phone + preferences.
  * Persists to data/sms-registry.json (created if missing).
  */
 
@@ -8,9 +8,27 @@ import { join } from "node:path";
 
 const REGISTRY_PATH = join(process.cwd(), "data", "sms-registry.json");
 
+export interface SmsPreferences {
+  rebalances: boolean;      // when agent rebalances
+  warnings: boolean;        // LTV > 65%
+  largePriceMoves: boolean; // >10% move
+  dailySummary: boolean;   // 9am summary
+  testAlerts: boolean;     // allow test button to send
+}
+
+export const DEFAULT_PREFERENCES: SmsPreferences = {
+  rebalances: true,
+  warnings: true,
+  largePriceMoves: true,
+  dailySummary: true,
+  testAlerts: true,
+};
+
 export interface RegistryEntry {
   phone: string;
   enabled: boolean;
+  preferences: SmsPreferences;
+  lastAlertAt: string | null; // ISO timestamp
 }
 
 let cache: Record<string, RegistryEntry> | null = null;
@@ -19,8 +37,19 @@ async function load(): Promise<Record<string, RegistryEntry>> {
   if (cache !== null) return cache;
   try {
     const raw = await readFile(REGISTRY_PATH, "utf-8");
-    cache = JSON.parse(raw) as Record<string, RegistryEntry>;
-    return cache ?? {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    cache = {};
+    for (const [addr, v] of Object.entries(parsed)) {
+      const e = v as Record<string, unknown>;
+      const prefs = (e.preferences as Partial<SmsPreferences>) || {};
+      cache[addr] = {
+        phone: String(e.phone ?? ""),
+        enabled: e.enabled !== false,
+        preferences: { ...DEFAULT_PREFERENCES, ...prefs },
+        lastAlertAt: typeof e.lastAlertAt === "string" ? e.lastAlertAt : null,
+      };
+    }
+    return cache;
   } catch {
     cache = {};
     return cache;
@@ -43,11 +72,48 @@ export function isValidPhone(phone: string): boolean {
   return cleaned.length >= 10 && cleaned.length <= 15;
 }
 
-/** Register or update phone for a wallet address. */
-export async function register(address: string, phone: string): Promise<void> {
+/** Register or update phone and optional preferences. */
+export async function register(
+  address: string,
+  phone: string,
+  preferences?: Partial<SmsPreferences>
+): Promise<void> {
   const addr = normalizeAddress(address);
   const data = await load();
-  data[addr] = { phone: phone.trim(), enabled: true };
+  const existing = data[addr];
+  const prefs: SmsPreferences = existing
+    ? { ...existing.preferences, ...preferences }
+    : { ...DEFAULT_PREFERENCES, ...preferences };
+  data[addr] = {
+    phone: phone.trim(),
+    enabled: true,
+    preferences: prefs,
+    lastAlertAt: existing?.lastAlertAt ?? null,
+  };
+  await save(data);
+}
+
+/** Update only preferences for an address. */
+export async function updatePreferences(
+  address: string,
+  preferences: Partial<SmsPreferences>
+): Promise<boolean> {
+  const addr = normalizeAddress(address);
+  const data = await load();
+  const entry = data[addr];
+  if (!entry || !entry.enabled) return false;
+  entry.preferences = { ...entry.preferences, ...preferences };
+  await save(data);
+  return true;
+}
+
+/** Record that an alert was sent (updates lastAlertAt). */
+export async function recordAlertSent(address: string): Promise<void> {
+  const addr = normalizeAddress(address);
+  const data = await load();
+  const entry = data[addr];
+  if (!entry) return;
+  entry.lastAlertAt = new Date().toISOString();
   await save(data);
 }
 
@@ -58,6 +124,15 @@ export async function getPhone(address: string): Promise<string | null> {
   const entry = data[addr];
   if (!entry || !entry.enabled) return null;
   return entry.phone;
+}
+
+/** Get full entry for address (for agent preference checks). */
+export async function getEntry(address: string): Promise<RegistryEntry | null> {
+  const addr = normalizeAddress(address);
+  const data = await load();
+  const entry = data[addr];
+  if (!entry || !entry.enabled) return null;
+  return entry;
 }
 
 /** Get masked phone for display (e.g. +***-1234). */
@@ -73,4 +148,36 @@ export async function getMaskedPhone(address: string): Promise<string | null> {
 export async function isRegistered(address: string): Promise<boolean> {
   const phone = await getPhone(address);
   return phone !== null;
+}
+
+/** Number of addresses registered for SMS alerts (for analytics). */
+export async function getRegistrationCount(): Promise<number> {
+  const data = await load();
+  return Object.keys(data).length;
+}
+
+/** Get preferences and lastAlertAt for status API. */
+export async function getStatus(address: string): Promise<{
+  registered: boolean;
+  maskedPhone: string | null;
+  preferences: SmsPreferences;
+  lastAlertAt: string | null;
+}> {
+  const entry = await getEntry(address);
+  if (!entry) {
+    return {
+      registered: false,
+      maskedPhone: null,
+      preferences: { ...DEFAULT_PREFERENCES },
+      lastAlertAt: null,
+    };
+  }
+  const digits = entry.phone.replace(/\D/g, "");
+  const maskedPhone = digits.length < 4 ? "+***" : "+***-" + digits.slice(-4);
+  return {
+    registered: true,
+    maskedPhone,
+    preferences: entry.preferences,
+    lastAlertAt: entry.lastAlertAt,
+  };
 }
