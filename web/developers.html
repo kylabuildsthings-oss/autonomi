@@ -49,9 +49,15 @@
 </head>
 <body class="bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
   <header class="sticky top-0 z-40 w-full border-b border-sand-border bg-sand-bg-card backdrop-blur-sm px-4 py-3 md:px-6 lg:px-12">
-    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
       <a href="index.html" class="font-heading font-bold text-lg text-sand-text no-underline">Autonomi</a>
       <div class="flex items-center gap-4">
+        <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+        <div id="wallet-connect-wrap" class="flex items-center gap-2">
+          <button type="button" id="wallet-connect-btn" class="btn btn--primary text-sm py-1.5 px-3 min-touch">Connect wallet</button>
+          <span id="wallet-address" class="text-sand-text-muted text-sm truncate max-w-32 hidden"></span>
+          <button type="button" id="wallet-disconnect-btn" class="btn btn--secondary text-sm py-1.5 px-2 hidden" aria-label="Disconnect wallet">✕</button>
+        </div>
         <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
         <a href="dashboard.html" class="btn btn--primary no-underline">Launch App</a>
       </div>
@@ -242,5 +248,6 @@
       }
     }
   </script>
+  <script src="wallet-connect.js"></script>
 </body>
 </html>

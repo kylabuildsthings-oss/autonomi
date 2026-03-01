@@ -218,6 +218,64 @@ export const openApiV1 = {
         },
       },
     },
+    "/api/v1/stats": {
+      get: {
+        tags: ["Market"],
+        summary: "Dashboard stats",
+        description: "Aggregate stats for the dashboard: TVL (monitored positions), active users, USYC yield, Arc settlement.",
+        responses: {
+          "200": {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    data: {
+                      type: "object",
+                      properties: {
+                        tvl: {
+                          type: "object",
+                          properties: {
+                            valueUsd: { type: "number" },
+                            changePct: { type: "number", nullable: true },
+                            formatted: { type: "string" },
+                          },
+                        },
+                        users: {
+                          type: "object",
+                          properties: {
+                            total: { type: "number" },
+                            monitored: { type: "number" },
+                          },
+                        },
+                        yield: {
+                          type: "object",
+                          properties: {
+                            value: { type: "number" },
+                            formatted: { type: "string" },
+                            source: { type: "string" },
+                          },
+                        },
+                        arc: {
+                          type: "object",
+                          properties: {
+                            settlement: { type: "string" },
+                            blockTime: { type: "string" },
+                            finality: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/v1/monitoring/health": {
       get: {
         tags: ["Monitoring"],

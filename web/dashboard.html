@@ -43,6 +43,8 @@
     .dashboard-error { font-size: 1rem; color: #f87171; margin-top: 0.5rem; }
     body { font-size: 16px; }
     summary::-webkit-details-marker { display: none; }
+    .stat-tooltip { position: relative; }
+    .stat-tooltip[title]:hover::after { content: attr(title); position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 4px; padding: 6px 8px; background: var(--sand-muted); border: 1px solid var(--sand-border); border-radius: 4px; font-size: 11px; color: var(--sand-text); white-space: normal; max-width: 200px; z-index: 10; pointer-events: none; }
   </style>
 </head>
 <body class="app-page bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
@@ -70,6 +72,11 @@
 
       <div class="flex items-center gap-2">
         <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+        <div id="wallet-connect-wrap" class="flex items-center gap-2">
+          <button type="button" id="wallet-connect-btn" class="btn btn--primary text-sm py-1.5 px-3 min-touch">Connect wallet</button>
+          <span id="wallet-address" class="text-sand-text-muted text-sm truncate max-w-32 hidden"></span>
+          <button type="button" id="wallet-disconnect-btn" class="btn btn--secondary text-sm py-1.5 px-2 hidden" aria-label="Disconnect wallet">✕</button>
+        </div>
         <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text md:min-w-0 lg:hidden" aria-label="Open menu">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
@@ -102,23 +109,39 @@
     <p id="dashboard-error" class="dashboard-error" hidden></p>
 
     <main id="dashboard-main" class="py-4 md:py-6 lg:py-8">
-      <!-- Stats grid: 1 col mobile → 2 tablet → 4 desktop -->
-      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8" aria-label="Key stats">
-        <div class="card text-center">
-          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">TVL</p>
-          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">$12.4M</p>
+      <!-- Stats grid: 4 cols desktop, 2x2 mobile; tooltips explain each stat -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8" aria-label="Key stats">
+        <div class="card text-center p-4 stat-tooltip" title="Total value locked: Sum of USYC collateral (at current price) across all monitored positions on the Autonomi contract.">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Total value locked</p>
+          <p id="stat-tvl" class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">—</p>
+          <p id="stat-tvl-change" class="text-xs text-sand-text-muted m-0 mt-0.5" aria-hidden="true">—</p>
         </div>
-        <div class="card text-center">
-          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Active Agents</p>
-          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">4,208</p>
+        <div class="card text-center p-4 stat-tooltip" title="Active users: Number of unique addresses with an open position. Watching: addresses the agent monitors.">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Active users</p>
+          <p id="stat-users" class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">—</p>
+          <p id="stat-users-monitored" class="text-xs text-sand-text-muted m-0 mt-0.5"><span id="stat-monitored">—</span> watching</p>
         </div>
-        <div class="card text-center">
-          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Avg APY</p>
-          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">12.8%</p>
+        <div class="card text-center p-4 stat-tooltip" title="USYC yield: Current APY from Circle Treasury (or configured source). Shown for reference.">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">USYC yield</p>
+          <p id="stat-yield" class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">—</p>
+          <p id="stat-yield-source" class="text-xs text-sand-text-muted m-0 mt-0.5">—</p>
         </div>
-        <div class="card text-center">
-          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Settlement</p>
-          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">&lt;1s</p>
+        <div class="card text-center p-4 stat-tooltip" title="Arc settlement: Time to finality on Arc network. Sub-second finality for fast rebalances.">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Arc settlement</p>
+          <p id="stat-arc" class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">—</p>
+          <p id="stat-arc-finality" class="text-xs text-sand-text-muted m-0 mt-0.5">Finality</p>
+        </div>
+      </section>
+
+      <!-- Agent stats: positions watched, status -->
+      <section class="card p-4 mb-6 lg:mb-8 flex flex-wrap items-center gap-4" aria-label="Agent stats">
+        <div class="stat-tooltip" title="Positions the autonomous agent is currently monitoring for rebalance.">
+          <span class="text-xs uppercase tracking-wider text-sand-text-muted">Positions watched</span>
+          <p id="stat-agent-watched" class="font-heading font-bold text-sand-orange m-0 mt-0.5">—</p>
+        </div>
+        <div class="stat-tooltip" title="Whether the rebalance agent process is running and checking LTV.">
+          <span class="text-xs uppercase tracking-wider text-sand-text-muted">Agent status</span>
+          <p id="stat-agent-status" class="font-heading font-bold m-0 mt-0.5">—</p>
         </div>
       </section>
 
@@ -128,7 +151,10 @@
         <div class="lg:col-span-2 space-y-4">
           <span id="position" class="block -mt-24 pt-24" aria-hidden="true"></span>
           <section id="position-card" class="card card--primary">
-            <h2 class="card__title">Circle Managed Wallet</h2>
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+              <h2 class="card__title m-0">Circle Managed Wallet</h2>
+              <button type="button" id="wallet-connect-position-btn" class="btn btn--secondary text-sm py-1.5 px-3">Connect another wallet</button>
+            </div>
 
             <div id="position-empty" class="stack--sm" hidden>
               <p class="m-0 text-sand-text-muted text-base">No active position. Deposit USYC and borrow USDC to get started.</p>

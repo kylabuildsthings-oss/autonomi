@@ -100,6 +100,23 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && parsed.pathname === "/api/dashboard/stats") {
+    setCors(res);
+    try {
+      const { getStats } = await import("./stats/service.js");
+      const stats = await getStats();
+      (stats as { agent?: { running: boolean; positionsWatched: number } }).agent = {
+        running: agentRunning,
+        positionsWatched: WATCHED_COUNT,
+      };
+      sendJson(res, 200, stats);
+    } catch (e) {
+      console.error("[server] Dashboard stats error", e);
+      sendJson(res, 500, { error: "Failed to fetch stats" });
+    }
+    return;
+  }
+
   if (req.method === "GET" && parsed.pathname === "/api/sms/status") {
     const address = parsed.searchParams.get("address")?.trim();
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
@@ -371,6 +388,22 @@ const server = createServer(async (req, res) => {
         contractAddress: CONTRACT_ADDRESS || null,
         watchedAddressesCount: agentRunning ? WATCHED_COUNT : null,
       });
+      return;
+    }
+
+    if (req.method === "GET" && p === "/api/v1/stats") {
+      try {
+        const { getStats } = await import("./stats/service.js");
+        const stats = await getStats();
+        (stats as { agent?: { running: boolean; positionsWatched: number } }).agent = {
+          running: agentRunning,
+          positionsWatched: WATCHED_COUNT,
+        };
+        apiV1Json(res, 200, stats);
+      } catch (e) {
+        console.error("[server] Stats API error", e);
+        apiV1Json(res, 500, null, "Failed to fetch stats");
+      }
       return;
     }
 

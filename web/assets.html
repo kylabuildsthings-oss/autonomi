@@ -39,10 +39,17 @@
         <a href="activity.html" class="text-sand-text-muted text-sm no-underline">Agent</a>
         <a href="profile.html" class="text-sand-text-muted text-sm no-underline">Settings</a>
       </nav>
-      <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+        <div id="wallet-connect-wrap" class="flex items-center gap-2">
+          <button type="button" id="wallet-connect-btn" class="btn btn--primary text-sm py-1.5 px-3 min-touch">Connect wallet</button>
+          <span id="wallet-address" class="text-sand-text-muted text-sm truncate max-w-32 hidden"></span>
+          <button type="button" id="wallet-disconnect-btn" class="btn btn--secondary text-sm py-1.5 px-2 hidden" aria-label="Disconnect wallet">✕</button>
+        </div>
       <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text lg:hidden" aria-label="Open menu">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
+      </div>
     </div>
     <div class="hidden md:flex lg:hidden border-t border-sand-border px-4 py-2 gap-1">
       <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-orange font-medium text-sm no-underline shrink-0">🏠 Home</a>
@@ -97,5 +104,6 @@
       a.addEventListener('click', function() { document.getElementById('mobile-menu').classList.add('hidden'); document.getElementById('mobile-menu').setAttribute('aria-hidden', 'true'); });
     });
   </script>
+  <script src="wallet-connect.js"></script>
 </body>
 </html>
