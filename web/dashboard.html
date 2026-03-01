@@ -58,6 +58,7 @@
         <a href="dashboard.html" class="text-sand-orange font-medium">Home</a>
         <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
         <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
+        <a href="community.html" class="text-sand-text-muted hover:text-sand-text no-underline">Community</a>
         <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
         <a href="strategy.html" class="text-sand-text-muted hover:text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
@@ -89,6 +90,7 @@
       <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-orange text-sm font-medium no-underline shrink-0">🏠 Home</a>
       <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
       <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
+      <a href="community.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">💬 Community</a>
       <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
       <a href="docs.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Docs</a>
       <a href="developers.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Developers</a>
@@ -102,6 +104,7 @@
         <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">🏠 Home</a>
         <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
         <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
+        <a href="community.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">💬 Community</a>
         <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
         <a href="strategy.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Docs</a>
@@ -115,6 +118,7 @@
     <p id="dashboard-error" class="dashboard-error" hidden></p>
 
     <main id="dashboard-main" class="py-4 md:py-6 lg:py-8">
+      <p class="text-sand-text-muted text-base mb-4 md:mb-6">Your position at a glance. The agent monitors LTV and rebalances when needed — connect your wallet to see your data.</p>
       <!-- Stats grid: 4 cols desktop, 2x2 mobile; tooltips explain each stat -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8" aria-label="Key stats">
         <div class="card text-center p-4 stat-tooltip" title="Total value locked: Sum of USYC collateral (at current price) across all monitored positions on the Autonomi contract.">
@@ -158,7 +162,7 @@
           <span id="position" class="block -mt-24 pt-24" aria-hidden="true"></span>
           <section id="position-card" class="card card--primary">
             <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-              <h2 class="card__title m-0">Circle Managed Wallet</h2>
+              <h2 class="card__title m-0">Your Position</h2>
               <button type="button" id="wallet-connect-position-btn" class="btn btn--secondary text-sm py-1.5 px-3">Connect another wallet</button>
             </div>
 
@@ -249,6 +253,7 @@
     <a href="dashboard.html" class="active min-touch flex flex-col items-center justify-center gap-0.5 no-underline">🏠 <span>Home</span></a>
     <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
     <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
+    <a href="community.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">💬 <span>Community</span></a>
     <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
   </nav>
 

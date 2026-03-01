@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Settings — Autonomi</title>
+  <title>Community — Autonomi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -15,10 +15,8 @@
   <link rel="stylesheet" href="responsive.css" />
   <link rel="stylesheet" href="app.css" />
   <style>
-    .profile-section__title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sand-text-muted); margin: 0 0 8px; }
-    .wallet-address { font-family: var(--font-heading); font-size: 0.85rem; }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; min-height: 44px; }
     body { font-size: 16px; }
+    .community-reply { border-left: 3px solid var(--sand-orange); }
   </style>
 </head>
 <body class="app-page bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
@@ -29,8 +27,8 @@
         <a href="dashboard.html" class="text-sand-text-muted hover:text-sand-text no-underline">Home</a>
         <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
         <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
-        <a href="community.html" class="text-sand-text-muted hover:text-sand-text no-underline">Community</a>
-        <a href="profile.html" class="text-sand-orange font-medium no-underline">Settings</a>
+        <a href="community.html" class="text-sand-orange font-medium no-underline">Community</a>
+        <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
         <a href="strategy.html" class="text-sand-text-muted hover:text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
         <a href="developers.html" class="text-sand-text-muted hover:text-sand-text no-underline">Developers</a>
@@ -38,7 +36,7 @@
       <nav class="hidden md:flex lg:hidden items-center gap-4">
         <a href="dashboard.html" class="text-sand-text-muted text-sm no-underline">Home</a>
         <a href="activity.html" class="text-sand-text-muted text-sm no-underline">Agent</a>
-        <a href="profile.html" class="text-sand-orange text-sm no-underline">Settings</a>
+        <a href="profile.html" class="text-sand-text-muted text-sm no-underline">Settings</a>
       </nav>
       <div class="flex items-center gap-2">
         <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
@@ -47,17 +45,17 @@
           <span id="wallet-address" class="text-sand-text-muted text-sm truncate max-w-32 hidden"></span>
           <button type="button" id="wallet-disconnect-btn" class="btn btn--secondary text-sm py-1.5 px-2 hidden" aria-label="Disconnect wallet">✕</button>
         </div>
-      <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text lg:hidden" aria-label="Open menu">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+        <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text lg:hidden" aria-label="Open menu">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
       </div>
     </div>
-    <div class="hidden md:flex lg:hidden border-t border-sand-border px-4 py-2 gap-1">
+    <div class="hidden md:flex lg:hidden border-t border-sand-border px-4 py-2 gap-1 overflow-x-auto">
       <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🏠 Home</a>
       <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
       <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
-      <a href="community.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">💬 Community</a>
-      <a href="profile.html" class="active min-touch flex items-center gap-1.5 rounded px-3 text-sand-orange font-medium text-sm no-underline shrink-0">⚙️ Settings</a>
+      <a href="community.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-orange font-medium text-sm no-underline shrink-0">💬 Community</a>
+      <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
       <a href="docs.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Docs</a>
       <a href="developers.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Developers</a>
     </div>
@@ -69,8 +67,8 @@
         <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🏠 Home</a>
         <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
         <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
-        <a href="community.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">💬 Community</a>
-        <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">⚙️ Settings</a>
+        <a href="community.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">💬 Community</a>
+        <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
         <a href="strategy.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Docs</a>
         <a href="developers.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Developers</a>
@@ -80,24 +78,61 @@
 
   <div class="app-container resp-content-with-nav pb-22 md:pb-6">
     <main class="py-4 md:py-6 lg:py-8">
-      <h1 class="page-title font-heading text-base uppercase tracking-wider mb-4 text-sand-text">User Settings</h1>
+      <h1 class="page-title font-heading text-base uppercase tracking-wider mb-4 text-sand-text">Community</h1>
+      <p class="text-sand-text-muted text-sm mb-6">Wallet holders can set an anonymous username and join the forum. Connect your wallet to post and reply.</p>
 
-      <div class="card stack" id="profile-wallet-card">
-        <p class="profile-section__title">Connected Wallet</p>
-        <div id="profile-wallet-disconnected">
-          <p class="text-sand-text-muted m-0">Connect your wallet using the button in the header to see your address and use the app.</p>
+      <div id="community-connect-prompt" class="card p-6 mb-6 hidden">
+        <p class="text-sand-text-muted m-0">Connect your wallet using the button in the header to set a username and participate in the forum.</p>
+      </div>
+
+      <div id="community-username-wrap" class="card p-6 mb-6 hidden">
+        <h2 class="font-heading font-bold text-lg text-sand-text m-0 mb-2">Your anonymous username</h2>
+        <p id="community-username-current" class="text-sm text-sand-text-muted m-0 mb-3">Not set — your posts will show a short address.</p>
+        <div class="flex flex-wrap gap-2 items-end">
+          <div class="flex-1 min-w-0 max-w-xs">
+            <label class="block text-xs text-sand-text-muted mb-1">Username (2–32 chars, letters, numbers, _ or -)</label>
+            <input type="text" id="community-username-input" placeholder="anon_arc_user" class="w-full px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base" maxlength="32" />
+          </div>
+          <button type="button" id="community-username-btn" class="btn btn--primary">Save username</button>
         </div>
-        <div id="profile-wallet-connected" class="hidden">
-          <p id="profile-wallet-address" class="wallet-address m-0"></p>
-          <p class="text-sm text-sand-text-muted mt-1 m-0">Arc Testnet</p>
-          <button type="button" id="profile-wallet-disconnect-btn" class="btn btn--secondary mt-2 min-touch">Disconnect</button>
+        <p id="community-username-error" class="text-sm text-red-400 mt-2 m-0 hidden"></p>
+      </div>
+
+      <div id="community-thread-wrap" class="hidden">
+        <p class="mb-4"><a href="community.html" class="text-sand-orange no-underline hover:underline">← Back to forum</a></p>
+        <div id="community-thread-post" class="card p-6 mb-4"></div>
+        <div id="community-thread-replies" class="space-y-3 mb-6"></div>
+        <div id="community-reply-form-wrap" class="card p-6 hidden">
+          <h3 class="font-heading font-bold text-sand-text m-0 mb-2">Reply</h3>
+          <textarea id="community-reply-body" rows="3" class="w-full px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base mb-2" placeholder="Write a reply…"></textarea>
+          <button type="button" id="community-reply-btn" class="btn btn--primary">Post reply</button>
+          <p id="community-reply-error" class="text-sm text-red-400 mt-2 m-0 hidden"></p>
         </div>
       </div>
 
-      <div class="card stack mt-4">
-        <p class="profile-section__title">Notification Settings</p>
-        <p class="text-base m-0 mb-2">SMS alerts are managed on the Alerts page. Connect your wallet, then go to Alerts to register a phone number and choose which notifications you want.</p>
-        <a href="alerts.html" class="btn btn--primary mt-2 inline-block no-underline min-touch flex items-center justify-center w-fit">Manage alerts →</a>
+      <div id="community-list-wrap">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <h2 class="font-heading font-bold text-lg text-sand-text m-0">Forum</h2>
+          <button type="button" id="community-new-post-btn" class="btn btn--primary hidden">New post</button>
+        </div>
+        <div id="community-posts-list" class="space-y-3">
+          <p class="text-sand-text-muted">Loading…</p>
+        </div>
+      </div>
+
+      <div id="community-new-post-wrap" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="card p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <h3 class="font-heading font-bold text-sand-text m-0 mb-4">New post</h3>
+          <label class="block text-sm text-sand-text-muted mb-1">Title</label>
+          <input type="text" id="community-new-post-title" class="w-full px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base mb-4" maxlength="200" placeholder="Post title" />
+          <label class="block text-sm text-sand-text-muted mb-1">Body</label>
+          <textarea id="community-new-post-body" rows="5" class="w-full px-3 py-2 rounded border border-sand-border bg-sand-bg text-sand-text text-base mb-4" placeholder="Write your post…"></textarea>
+          <div class="flex gap-2">
+            <button type="button" id="community-new-post-submit" class="btn btn--primary">Post</button>
+            <button type="button" id="community-new-post-cancel" class="btn btn--secondary">Cancel</button>
+          </div>
+          <p id="community-new-post-error" class="text-sm text-red-400 mt-2 m-0 hidden"></p>
+        </div>
       </div>
     </main>
   </div>
@@ -106,8 +141,8 @@
     <a href="dashboard.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🏠 <span>Home</span></a>
     <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
     <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
-    <a href="community.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">💬 <span>Community</span></a>
-    <a href="profile.html" class="active min-touch flex flex-col items-center justify-center gap-0.5 no-underline">⚙️ <span>Settings</span></a>
+    <a href="community.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-orange no-underline">💬 <span>Community</span></a>
+    <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
   </nav>
 
   <script>
@@ -121,49 +156,6 @@
     });
   </script>
   <script src="wallet-connect.js"></script>
-  <script>
-    (function () {
-      var STORAGE_KEY = "autonomi_wallet";
-      function getAddress() {
-        var u = new URLSearchParams(window.location.search).get("address");
-        if (u && /^0x[a-fA-F0-9]{40}$/.test(u)) return u;
-        try {
-          var s = sessionStorage.getItem(STORAGE_KEY);
-          return s && /^0x[a-fA-F0-9]{40}$/.test(s) ? s : "";
-        } catch (e) { return ""; }
-      }
-      function updateProfileWallet() {
-        var addr = getAddress();
-        var disconnectedEl = document.getElementById("profile-wallet-disconnected");
-        var connectedEl = document.getElementById("profile-wallet-connected");
-        var addressEl = document.getElementById("profile-wallet-address");
-        if (!disconnectedEl || !connectedEl) return;
-        if (addr) {
-          disconnectedEl.classList.add("hidden");
-          connectedEl.classList.remove("hidden");
-          if (addressEl) addressEl.textContent = addr.slice(0, 6) + "…" + addr.slice(-4);
-        } else {
-          disconnectedEl.classList.remove("hidden");
-          connectedEl.classList.add("hidden");
-        }
-      }
-      document.addEventListener("autonomi:wallet-change", function (e) {
-        var addr = e.detail && e.detail.address;
-        if (addr) sessionStorage.setItem(STORAGE_KEY, addr);
-        else try { sessionStorage.removeItem(STORAGE_KEY); } catch (x) {}
-        updateProfileWallet();
-      });
-      var discBtn = document.getElementById("profile-wallet-disconnect-btn");
-      if (discBtn) discBtn.addEventListener("click", function () {
-        var headerBtn = document.getElementById("wallet-disconnect-btn");
-        if (headerBtn) headerBtn.click();
-      });
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", updateProfileWallet);
-      } else {
-        updateProfileWallet();
-      }
-    })();
-  </script>
+  <script src="community.js"></script>
 </body>
 </html>

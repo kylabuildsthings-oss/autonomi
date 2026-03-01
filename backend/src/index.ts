@@ -84,7 +84,7 @@ const server = createServer(async (req, res) => {
   };
 
   try {
-  if (req.method === "OPTIONS" && (parsed.pathname === "/api/dashboard" || parsed.pathname.startsWith("/api/sms") || parsed.pathname.startsWith("/api/v1"))) {
+  if (req.method === "OPTIONS" && (parsed.pathname === "/api/dashboard" || parsed.pathname.startsWith("/api/sms") || parsed.pathname.startsWith("/api/community") || parsed.pathname.startsWith("/api/v1"))) {
     setCors(res);
     res.statusCode = 204;
     res.end();
@@ -331,6 +331,216 @@ const server = createServer(async (req, res) => {
       }
       console.error("[server] SMS test error", e);
       sendJson(res, 500, { error: "Failed to send test SMS" });
+    }
+    return;
+  }
+
+  // ---------- Community (anon forum) ----------
+  if (req.method === "GET" && parsed.pathname === "/api/community/me") {
+    const address = parsed.searchParams.get("address")?.trim();
+    setCors(res);
+    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      sendJson(res, 400, { error: "Invalid or missing address" });
+      return;
+    }
+    try {
+      const { getUsername } = await import("./community/store.js");
+      const username = await getUsername(address);
+      sendJson(res, 200, { username });
+    } catch (e) {
+      console.error("[server] Community me error", e);
+      sendJson(res, 500, { error: "Failed to get username" });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && parsed.pathname === "/api/community/username") {
+    setCors(res);
+    try {
+      const { setUsername: setCommunityUsername, isValidUsername } = await import("./community/store.js");
+      const { requireSignedRequest } = await import("./community/verify.js");
+      const { checkCommunityRateLimit } = await import("./community/rate-limit.js");
+      const raw = await readBody(req);
+      const body = JSON.parse(raw || "{}") as { address?: string; username?: string; message?: string; signature?: string };
+      const address = body.address?.trim();
+      const username = body.username?.trim();
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        sendJson(res, 400, { error: "Invalid or missing address" });
+        return;
+      }
+      if (!username || !isValidUsername(username)) {
+        sendJson(res, 400, { error: "Username must be 2–32 characters, letters, numbers, _ or -" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required" });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkCommunityRateLimit("community_username", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, { error: "Too many attempts", retryAfterSec: rate.retryAfterSec });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "community_username", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
+        return;
+      }
+      const result = await setCommunityUsername(address, username);
+      if (!result.ok) {
+        sendJson(res, 409, { error: result.error });
+        return;
+      }
+      sendJson(res, 200, { success: true, username });
+    } catch (e) {
+      if (e instanceof SyntaxError) sendJson(res, 400, { error: "Invalid JSON" });
+      else {
+        const errMsg = e instanceof Error ? e.message : "Failed to set username";
+        console.error("[server] Community username error", e);
+        sendJson(res, 500, { error: errMsg });
+      }
+    }
+    return;
+  }
+
+  if (req.method === "GET" && parsed.pathname === "/api/community/posts") {
+    setCors(res);
+    try {
+      const { listPosts } = await import("./community/store.js");
+      const posts = await listPosts();
+      sendJson(res, 200, { posts });
+    } catch (e) {
+      console.error("[server] Community posts list error", e);
+      sendJson(res, 500, { error: "Failed to list posts" });
+    }
+    return;
+  }
+
+  const communityPostIdMatch = parsed.pathname.match(/^\/api\/community\/posts\/([^/]+)$/);
+  if (req.method === "GET" && communityPostIdMatch) {
+    const postId = communityPostIdMatch[1];
+    setCors(res);
+    try {
+      const { getPost, getReplies } = await import("./community/store.js");
+      const post = await getPost(postId);
+      if (!post) {
+        sendJson(res, 404, { error: "Post not found" });
+        return;
+      }
+      const replies = await getReplies(postId);
+      sendJson(res, 200, { post, replies });
+    } catch (e) {
+      console.error("[server] Community post get error", e);
+      sendJson(res, 500, { error: "Failed to load post" });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && parsed.pathname === "/api/community/posts") {
+    setCors(res);
+    try {
+      const { createPost, getUsername } = await import("./community/store.js");
+      const { requireSignedRequest } = await import("./community/verify.js");
+      const { checkCommunityRateLimit } = await import("./community/rate-limit.js");
+      const raw = await readBody(req);
+      const body = JSON.parse(raw || "{}") as { address?: string; title?: string; body?: string; message?: string; signature?: string };
+      const address = body.address?.trim();
+      const title = body.title?.trim();
+      const bodyText = body.body?.trim();
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        sendJson(res, 400, { error: "Invalid or missing address" });
+        return;
+      }
+      if (!title || title.length < 1 || title.length > 200) {
+        sendJson(res, 400, { error: "Title required (max 200 characters)" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required" });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkCommunityRateLimit("community_post", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, { error: "Too many posts", retryAfterSec: rate.retryAfterSec });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "community_post", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
+        return;
+      }
+      const authorUsername = (await getUsername(address)) || address.slice(0, 8) + "…";
+      const post = await createPost(address, authorUsername, title, bodyText || "");
+      sendJson(res, 200, { success: true, post });
+    } catch (e) {
+      if (e instanceof SyntaxError) sendJson(res, 400, { error: "Invalid JSON" });
+      else {
+        const errMsg = e instanceof Error ? e.message : "Failed to create post";
+        console.error("[server] Community post create error", e);
+        sendJson(res, 500, { error: errMsg });
+      }
+    }
+    return;
+  }
+
+  const communityReplyPostMatch = parsed.pathname.match(/^\/api\/community\/posts\/([^/]+)\/replies$/);
+  if (req.method === "POST" && communityReplyPostMatch) {
+    const postId = communityReplyPostMatch[1];
+    setCors(res);
+    try {
+      const { addReply, getPost, getUsername } = await import("./community/store.js");
+      const { requireSignedRequest } = await import("./community/verify.js");
+      const { checkCommunityRateLimit } = await import("./community/rate-limit.js");
+      const raw = await readBody(req);
+      const body = JSON.parse(raw || "{}") as { address?: string; body?: string; message?: string; signature?: string };
+      const address = body.address?.trim();
+      const bodyText = body.body?.trim();
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        sendJson(res, 400, { error: "Invalid or missing address" });
+        return;
+      }
+      if (!bodyText || bodyText.length < 1) {
+        sendJson(res, 400, { error: "Reply body required" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required" });
+        return;
+      }
+      const post = await getPost(postId);
+      if (!post) {
+        sendJson(res, 404, { error: "Post not found" });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkCommunityRateLimit("community_reply", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, { error: "Too many replies", retryAfterSec: rate.retryAfterSec });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "community_reply", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
+        return;
+      }
+      const authorUsername = (await getUsername(address)) || address.slice(0, 8) + "…";
+      const reply = await addReply(postId, address, authorUsername, bodyText);
+      sendJson(res, 200, { success: true, reply });
+    } catch (e) {
+      if (e instanceof SyntaxError) sendJson(res, 400, { error: "Invalid JSON" });
+      else {
+        const errMsg = e instanceof Error ? e.message : "Failed to add reply";
+        console.error("[server] Community reply error", e);
+        sendJson(res, 500, { error: errMsg });
+      }
     }
     return;
   }

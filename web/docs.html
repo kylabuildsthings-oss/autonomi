@@ -38,6 +38,7 @@
         <a href="dashboard.html" class="text-sand-text-muted hover:text-sand-text no-underline">Home</a>
         <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
         <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
+        <a href="community.html" class="text-sand-text-muted hover:text-sand-text no-underline">Community</a>
         <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
         <a href="strategy.html" class="text-sand-text-muted hover:text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="text-sand-orange font-medium no-underline">Docs</a>
@@ -67,6 +68,7 @@
       <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🏠 Home</a>
       <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
       <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
+      <a href="community.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">💬 Community</a>
       <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
     </div>
   </header>
@@ -77,6 +79,7 @@
         <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🏠 Home</a>
         <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
         <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
+        <a href="community.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">💬 Community</a>
         <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
         <a href="strategy.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Strategy</a>
         <a href="docs.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">Docs</a>
@@ -90,8 +93,10 @@
       <aside class="mb-8 lg:mb-0 lg:sticky lg:top-24 lg:self-start">
         <nav class="docs-nav" aria-label="Docs">
           <a href="#overview">Overview</a>
+          <a href="#for-users">For Users</a>
           <a href="#getting-started">Getting Started</a>
           <a href="#protocol">Protocol</a>
+          <a href="#alerts">SMS Alerts</a>
           <a href="#api">API</a>
           <a href="#references">References</a>
         </nav>
@@ -99,12 +104,22 @@
 
       <main class="docs-content min-w-0">
         <h1 class="font-heading font-bold text-2xl md:text-4xl lg:text-5xl text-sand-text mb-2">Documentation</h1>
-        <p class="text-sand-text-muted text-base md:text-lg mb-10">Setup, protocol behaviour, and API reference for Autonomi.</p>
+        <p class="text-sand-text-muted text-base md:text-lg mb-10">Everything you need to use Autonomi and build on it — from connecting your wallet to integrating the API.</p>
 
         <h2 id="overview">Overview</h2>
-        <p>Autonomi is an AI-powered lending agent on the Arc blockchain. Users deposit USYC as collateral and borrow USDC. An automated agent monitors loan-to-value (LTV) and calls <code>autoRebalance</code> when LTV exceeds a threshold, keeping positions within safe bounds. The stack includes Solidity contracts (Foundry), a Node.js/TypeScript backend agent, and a static web dashboard.</p>
+        <p><strong>Autonomi</strong> is autonomous lending protection on Arc. You deposit USYC (tokenized Treasury) as collateral and borrow USDC. An agent monitors your loan-to-value (LTV) 24/7 and automatically calls <code>autoRebalance</code> when risk gets too high, so your position stays within safe bounds without you watching the charts.</p>
+        <p><strong>For users:</strong> Connect your wallet (Arc Testnet), view your position and USYC yield on the dashboard, and optionally register a phone number for SMS alerts (rebalances, LTV warnings, big price moves). Only you can register or change the number for your wallet — we verify ownership with a signature.</p>
+        <p><strong>For developers:</strong> The REST API v1 exposes positions, agent status, and alerts. Create API keys, register webhooks for rebalance / warning / price events, and build dashboards, bots, or wallets. OpenAPI spec and interactive docs are available at <code>/api/v1/docs</code> when the backend is running.</p>
 
-        <h2 id="getting-started">Getting Started</h2>
+        <h2 id="for-users">For Users</h2>
+        <h3>Connect your wallet</h3>
+        <p>Use <strong>Launch App</strong> and connect with MetaMask, Coinbase Wallet, Rabby, or another Arc-compatible wallet. We use Arc Testnet (Chain ID 5042002). Your address is used to load your position and to manage SMS alerts — we never store your private key.</p>
+        <h3>Dashboard</h3>
+        <p>After connecting, the dashboard shows live USYC price, your collateral and borrowed amount, LTV, and whether the agent is running. Stats and position data load only when your wallet is connected.</p>
+        <h3>SMS Alerts</h3>
+        <p>Go to <strong>Alerts</strong> to register a phone number (E.164, e.g. +15551234567). You'll sign a message in your wallet to prove ownership — then we can send you SMS when the agent rebalances your position, when LTV is high, or when USYC price moves sharply. One number per wallet; only you can change it. You can also send a test SMS to confirm delivery.</p>
+
+        <h2 id="getting-started">Getting Started (Self-Host / Dev)</h2>
         <h3>1. Clone and env</h3>
         <p>Copy <code>.env.example</code> to <code>.env</code> in the project root and in <code>backend/</code>. Set <code>ARC_TESTNET_RPC_URL</code> (e.g. <code>https://rpc.testnet.arc.network</code>) and <code>PRIVATE_KEY</code> (your deployer wallet).</p>
         <h3>2. Fund the wallet</h3>
@@ -131,10 +146,13 @@ forge build
         <h3>Oracles</h3>
         <p>USYC price is read from a teller contract (on testnet, MockTeller returns a fixed price). In production, Stork oracle feeds are used.</p>
 
+        <h2 id="alerts">SMS Alerts</h2>
+        <p>Alerts are stored per wallet in a JSON registry. To register or change your number you must sign a time-bound message in your wallet; the backend verifies the signature so only the wallet owner can add or update a number. Each phone number can be linked to at most one wallet. Rate limits apply (e.g. 5 registrations per hour per address, 3 test SMS per 10 minutes) to prevent abuse. Events sent: rebalance, LTV warning, large price move, optional daily summary.</p>
+
         <h2 id="api">API</h2>
-        <p>The backend exposes a read-only dashboard endpoint:</p>
+        <p>The backend exposes a <strong>dashboard endpoint</strong> and a full <strong>REST API v1</strong> for integrations.</p>
         <h3>GET /api/dashboard</h3>
-        <p><strong>Query:</strong> <code>address</code> (optional) — Ethereum address to fetch position for. If omitted, the server uses a default (first entry in WATCH_ADDRESSES or AUTONOMI_DEFAULT_VIEWER).</p>
+        <p><strong>Query:</strong> <code>address</code> (required when using the app — pass the connected wallet address). The server returns position data for that address only; no default wallet.</p>
         <p><strong>Response:</strong></p>
         <pre>{
   "usycPrice": "1.05",
@@ -146,6 +164,18 @@ forge build
   }
 }</pre>
         <p>If there is no active position, <code>position</code> is <code>null</code>. CORS is enabled for the web app.</p>
+        <h3>REST API v1</h3>
+        <p>Base URL: <code>/api/v1</code>. Versioned, consistent envelope: <code>{ success, data?, error?, meta: { version, timestamp } }</code>.</p>
+        <ul>
+          <li><strong>Health &amp; market:</strong> <code>GET /api/v1/health</code>, <code>GET /api/v1/market</code></li>
+          <li><strong>Positions:</strong> <code>GET /api/v1/positions/:address</code> or <code>GET /api/v1/positions?addresses=0x...,0x...</code> (batch, max 20)</li>
+          <li><strong>Agent:</strong> <code>GET /api/v1/agent</code> — running, contract, watched count</li>
+          <li><strong>Alerts:</strong> <code>GET /api/v1/alerts/status?address=0x...</code>; <code>POST /api/v1/alerts/register</code>, <code>preferences</code>, <code>test</code> (require wallet signature in body)</li>
+          <li><strong>Auth:</strong> <code>POST /api/v1/auth/keys</code> to create API keys; <code>GET /api/v1/auth/keys?address=0x...</code>; <code>DELETE /api/v1/auth/keys/:id</code>. Use <code>Authorization: Bearer &lt;key&gt;</code> on protected routes.</li>
+          <li><strong>Webhooks:</strong> <code>POST /api/v1/webhooks</code> (url, events: rebalance, warning, price), list, update, delete; deliveries logged.</li>
+          <li><strong>Analytics:</strong> <code>GET /api/v1/analytics/overview</code>, <code>webhooks?hours=24</code>, <code>usage?days=7</code></li>
+        </ul>
+        <p>Interactive docs: <code>GET /api/v1/docs</code> (Swagger UI). OpenAPI spec: <code>GET /api/v1/openapi.json</code>.</p>
 
         <h2 id="references">References</h2>
         <ul>
@@ -153,6 +183,7 @@ forge build
           <li><a href="https://faucet.circle.com" class="text-sand-orange no-underline">Circle Faucet</a> (Arc Testnet)</li>
           <li><a href="https://testnet.arcscan.app" class="text-sand-orange no-underline">Arc testnet explorer</a></li>
           <li><a href="strategy.html" class="text-sand-orange no-underline">Strategy &amp; Roadmap</a></li>
+          <li><a href="developers.html" class="text-sand-orange no-underline">Developers — API keys &amp; integration</a></li>
         </ul>
       </main>
     </div>
@@ -167,6 +198,7 @@ forge build
     <a href="dashboard.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🏠 <span>Home</span></a>
     <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
     <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
+    <a href="community.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">💬 <span>Community</span></a>
     <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
   </nav>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Strategy &amp; Roadmap — Autonomi</title>
+  <title>Strategy &amp; Roadmap — How Autonomi Works</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -31,6 +31,7 @@
         <a href="dashboard.html" class="text-sand-text-muted hover:text-sand-text no-underline">Home</a>
         <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
         <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
+        <a href="community.html" class="text-sand-text-muted hover:text-sand-text no-underline">Community</a>
         <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
         <a href="strategy.html" class="text-sand-orange font-medium no-underline">Strategy</a>
         <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
@@ -60,6 +61,7 @@
       <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🏠 Home</a>
       <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
       <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
+      <a href="community.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">💬 Community</a>
       <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
       <a href="docs.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Docs</a>
       <a href="developers.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">Developers</a>
@@ -72,6 +74,7 @@
         <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🏠 Home</a>
         <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
         <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
+        <a href="community.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">💬 Community</a>
         <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
         <a href="strategy.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">Strategy</a>
         <a href="docs.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Docs</a>
@@ -82,26 +85,56 @@
 
   <div class="landing-container px-4 py-8 md:py-12 lg:py-20 pb-22 md:pb-12 resp-content-with-nav">
     <h1 class="font-heading font-bold text-2xl md:text-4xl lg:text-5xl text-sand-text mb-2">Strategy &amp; Roadmap</h1>
-    <p class="text-sand-text-muted text-base md:text-lg lg:text-xl max-w-2xl mb-12 md:mb-16">Our product direction and the technology that powers Autonomi.</p>
+    <p class="text-sand-text-muted text-base md:text-lg lg:text-xl max-w-2xl mb-12 md:mb-16">How Autonomi protects your position, and where we're headed next.</p>
+
+    <!-- How it works -->
+    <section class="mb-12 md:mb-20">
+      <h2 class="font-heading font-bold text-xl md:text-2xl lg:text-3xl text-sand-text mb-6 md:mb-8">How Autonomi Works</h2>
+      <div class="card p-6 md:p-8 lg:p-10 mb-6">
+        <ol class="list-none p-0 m-0 space-y-6 md:space-y-8">
+          <li class="flex gap-4 md:gap-6 items-start">
+            <span class="font-heading font-bold text-sand-orange text-xl md:text-2xl shrink-0">1</span>
+            <div>
+              <h3 class="font-heading font-bold text-lg md:text-xl text-sand-text m-0 mb-2">Deposit &amp; Borrow</h3>
+              <p class="text-sand-text-muted text-base md:text-lg m-0 leading-relaxed">You deposit USYC (tokenized Treasury) as collateral and borrow USDC on Arc. Your position has a loan-to-value ratio (LTV). As USYC price or your borrows change, LTV moves.</p>
+            </div>
+          </li>
+          <li class="flex gap-4 md:gap-6 items-start">
+            <span class="font-heading font-bold text-sand-orange text-xl md:text-2xl shrink-0">2</span>
+            <div>
+              <h3 class="font-heading font-bold text-lg md:text-xl text-sand-text m-0 mb-2">Agent Monitors 24/7</h3>
+              <p class="text-sand-text-muted text-base md:text-lg m-0 leading-relaxed">Our backend agent runs on a schedule (e.g. every 5 minutes), reads USYC price and your position from the contract, and checks if LTV has crossed the safety threshold (e.g. 65%).</p>
+            </div>
+          </li>
+          <li class="flex gap-4 md:gap-6 items-start">
+            <span class="font-heading font-bold text-sand-orange text-xl md:text-2xl shrink-0">3</span>
+            <div>
+              <h3 class="font-heading font-bold text-lg md:text-xl text-sand-text m-0 mb-2">Rebalance &amp; Notify</h3>
+              <p class="text-sand-text-muted text-base md:text-lg m-0 leading-relaxed">When LTV is too high, the agent calls <code class="bg-sand-muted px-1 rounded">autoRebalance(user, targetLTV)</code> on-chain to bring your position back to target (e.g. 60%). If you've registered a phone number, you get an SMS. Webhooks fire for integrations.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
     <!-- Roadmap -->
     <section class="mb-12 md:mb-20">
       <h2 class="font-heading font-bold text-xl md:text-2xl lg:text-3xl text-sand-text mb-6 md:mb-8">Product Roadmap</h2>
       <div class="space-y-4 md:space-y-6">
         <div class="card phase-card pl-5 md:pl-6 lg:pl-8 py-5 md:py-6">
-          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 1 — Protocol Genesis</h3>
-          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">Mainnet-ready Autonomi contract on Arc: collateralised borrowing, LTV monitoring, and agent-triggered rebalancing. Mock oracles and testnet deployment for validation.</p>
-          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Target: Q4 2024 / Q1 2025</p>
+          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 1 — MVP (Live)</h3>
+          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">Autonomi contract on Arc Testnet: collateralised borrowing, LTV monitoring, agent-triggered rebalancing. Web dashboard with wallet connect, live positions, and USYC yield view. SMS alerts (one number per wallet, owner-verified). REST API v1: positions, agent status, alerts, API keys, webhooks (rebalance / warning / price), analytics and monitoring. OpenAPI docs and developer portal.</p>
+          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Shipped</p>
         </div>
         <div class="card phase-card pl-5 md:pl-6 lg:pl-8 py-5 md:py-6">
-          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 2 — Governance &amp; Monitoring</h3>
-          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">DAO governance for parameters (LTV caps, agent allowlist). Enhanced dashboard with live positions, agent activity log, and SMS-style alerts. Circle-managed wallets integration.</p>
-          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Target: Q1 2025</p>
+          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 2 — Governance &amp; UX</h3>
+          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">DAO or owner governance for LTV caps and agent allowlist. Circle-managed wallets integration. Enhanced dashboard: agent activity log, historical rebalances, and richer notification preferences.</p>
+          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Target: 2025</p>
         </div>
         <div class="card phase-card pl-5 md:pl-6 lg:pl-8 py-5 md:py-6">
-          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 3 — Ecosystem &amp; Scale</h3>
-          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">Multi-chain expansion via Arc. Stork oracle integration for production USYC price feeds. Institutional-grade analytics and risk dashboards.</p>
-          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Target: Q2 2025+</p>
+          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-1">Phase 3 — Scale &amp; Production</h3>
+          <p class="text-sand-text-muted text-sm md:text-base lg:text-lg m-0">Mainnet deployment. Stork oracle integration for production USYC price feeds. Multi-chain expansion via Arc. Institutional-grade analytics and risk dashboards.</p>
+          <p class="text-xs md:text-sm text-sand-text-muted mt-2 m-0">Target: 2025+</p>
         </div>
       </div>
     </section>
@@ -114,7 +147,7 @@
           <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-2">Chain &amp; Oracles</h3>
           <ul class="list-none p-0 m-0 text-sand-text-muted text-sm md:text-base lg:text-lg space-y-1">
             <li><strong class="text-sand-text">Arc</strong> — Execution layer and testnet</li>
-            <li><strong class="text-sand-text">Stork</strong> — Price oracle (USYC feeds)</li>
+            <li><strong class="text-sand-text">Stork</strong> — Price oracle (USYC feeds, production)</li>
             <li><strong class="text-sand-text">Circle</strong> — USDC, USYC, managed wallets</li>
           </ul>
         </div>
@@ -127,11 +160,13 @@
           </ul>
         </div>
         <div class="card p-5 md:p-6 lg:p-8 md:col-span-2 lg:col-span-1">
-          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-2">Backend &amp; Frontend</h3>
+          <h3 class="font-heading font-bold text-lg md:text-xl text-sand-orange m-0 mb-2">Backend &amp; Web</h3>
           <ul class="list-none p-0 m-0 text-sand-text-muted text-sm md:text-base lg:text-lg space-y-1">
-            <li><strong class="text-sand-text">Node.js / TypeScript</strong> — Agent, cron, API</li>
+            <li><strong class="text-sand-text">Node.js / TypeScript</strong> — Agent, cron, REST API</li>
             <li><strong class="text-sand-text">viem</strong> — Contract reads and writes</li>
-            <li>Static web (Tailwind, vanilla JS)</li>
+            <li><strong class="text-sand-text">SMS</strong> — Twilio; owner-signed, rate-limited</li>
+            <li><strong class="text-sand-text">Webhooks</strong> — rebalance, warning, price events</li>
+            <li>Static web (Tailwind, vanilla JS), Arc wallet connect</li>
           </ul>
         </div>
       </div>
@@ -147,6 +182,7 @@
     <a href="dashboard.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🏠 <span>Home</span></a>
     <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
     <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
+    <a href="community.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">💬 <span>Community</span></a>
     <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
   </nav>
 
