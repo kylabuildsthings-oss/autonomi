@@ -1,0 +1,273 @@
+/**
+ * Dashboard — position card, LTV gauge, Stork oracle
+ */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) 0;
+}
+
+.dashboard-header .logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--sand-text);
+  text-decoration: none;
+}
+
+.dashboard-header .protocol-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sand-text-muted);
+}
+
+/* Stats grid: each stat card has a subtle accent + larger numbers */
+.app-page section[aria-label="Key stats"] .card {
+  border-left: 3px solid rgba(245, 158, 11, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: var(--space-5);
+}
+@media (min-width: 1024px) {
+  .app-page section[aria-label="Key stats"] .card { padding: var(--space-6); }
+}
+.app-page section[aria-label="Key stats"] .card p:first-of-type {
+  font-size: var(--text-sm);
+}
+@media (min-width: 1024px) {
+  .app-page section[aria-label="Key stats"] .card p:first-of-type { font-size: var(--text-base); }
+  .app-page section[aria-label="Key stats"] .font-heading.font-bold { font-size: 1.35rem !important; }
+}
+.app-page section[aria-label="Key stats"] .card:hover {
+  border-left-color: var(--sand-orange);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.08);
+}
+
+/* Position card — Circle Managed Wallet */
+.position-card .card__title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sand-text);
+  margin: 0 0 var(--space-3);
+}
+@media (min-width: 1024px) {
+  .position-card .card__title { font-size: 1rem; }
+}
+
+.position-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(146, 64, 14, 0.35);
+}
+
+.position-row:last-of-type {
+  border-bottom: none;
+}
+
+.position-row__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--sand-text-muted);
+}
+@media (min-width: 1024px) {
+  .position-row__label { font-size: var(--text-base); }
+}
+
+.position-row__value {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--sand-text);
+}
+@media (min-width: 1024px) {
+  .position-row__value { font-size: 1.15rem; }
+}
+
+.token-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pixel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.token-icon--usyc {
+  background: var(--sand-ochre);
+  color: var(--sand-bg);
+}
+
+.token-icon--usdc {
+  background: #3b82f6;
+  color: #fff;
+}
+
+/* LTV Power Gauge — blocky, stepped gradient */
+.ltv-section {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(146, 64, 14, 0.35);
+}
+
+.ltv-section__label {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--sand-text-muted);
+  margin-bottom: var(--space-2);
+  display: block;
+}
+@media (min-width: 1024px) {
+  .ltv-section__label { font-size: var(--text-base); }
+}
+
+.ltv-gauge {
+  height: 24px;
+  border-radius: var(--radius-pixel);
+  background: var(--sand-muted);
+  overflow: hidden;
+  display: flex;
+}
+
+.ltv-gauge__segment {
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.ltv-gauge__segment--green { background: var(--ltv-green); }
+.ltv-gauge__segment--yellow { background: var(--ltv-yellow); }
+.ltv-gauge__segment--orange { background: var(--ltv-orange); }
+.ltv-gauge__segment--red { background: var(--ltv-red); }
+
+.ltv-gauge__fill {
+  height: 100%;
+  border-radius: 0 var(--radius-pixel) var(--radius-pixel) 0;
+  background: linear-gradient(
+    90deg,
+    var(--ltv-green) 0%,
+    var(--ltv-yellow) 35%,
+    var(--ltv-orange) 65%,
+    var(--ltv-red) 100%
+  );
+  background-size: 100% 100%;
+  transition: width 0.3s ease;
+}
+
+.ltv-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--sand-orange);
+  margin-top: var(--space-2);
+  font-size: 1.1rem;
+}
+@media (min-width: 1024px) {
+  .ltv-value { font-size: 1.25rem; }
+}
+
+/* Stork Price Oracle card */
+.oracle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.oracle-card .card__title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sand-text);
+  margin: 0;
+}
+@media (min-width: 1024px) {
+  .oracle-card .card__title { font-size: 1rem; }
+}
+
+.oracle-price {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sand-orange);
+}
+@media (min-width: 1024px) {
+  .oracle-price { font-size: 1.4rem; }
+}
+
+.stork-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--sand-text-muted);
+  background: rgba(120, 53, 15, 0.5);
+  padding: 8px 14px;
+  border-radius: var(--radius-pixel);
+  border: 1px solid rgba(146, 64, 14, 0.4);
+}
+
+.stork-badge__check {
+  color: var(--ltv-green);
+}
+
+/* Agent activity list: each item has a warm accent + readable text */
+.app-page [aria-label="Agent activity"] ul li,
+#agent-activity-list li {
+  padding: 14px 0 14px 14px;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  border-bottom: 1px solid rgba(146, 64, 14, 0.25);
+  transition: border-left-color 0.15s ease, background 0.15s ease;
+  font-size: var(--text-base);
+}
+.app-page [aria-label="Agent activity"] ul li p,
+#agent-activity-list li p {
+  font-size: var(--text-sm);
+}
+@media (min-width: 1024px) {
+  .app-page [aria-label="Agent activity"] ul li p,
+  #agent-activity-list li p { font-size: var(--text-base); }
+}
+.app-page [aria-label="Agent activity"] ul li:hover,
+#agent-activity-list li:hover {
+  border-left-color: rgba(245, 158, 11, 0.5);
+  background: rgba(34, 26, 22, 0.3);
+}
+.app-page [aria-label="Agent activity"] ul li:last-child,
+#agent-activity-list li:last-child {
+  border-bottom: none;
+}
+.app-page [aria-label="Agent activity"] .card__title,
+.app-page [aria-label="SMS Alerts"] .card__title {
+  color: var(--sand-text);
+  font-size: 1rem;
+}
+@media (min-width: 1024px) {
+  .app-page [aria-label="Agent activity"] .card__title,
+  .app-page [aria-label="SMS Alerts"] .card__title { font-size: 1.1rem; }
+}
+
+/* Page title for inner pages (overrides app.css if more specific) */
+.page-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-4);
+  color: var(--sand-text);
+}
+@media (min-width: 1024px) {
+  .page-title { font-size: 1.35rem; margin-bottom: var(--space-6); }
+}

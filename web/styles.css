@@ -1,0 +1,182 @@
+/**
+ * Autonomi base styles — Sandy Pixel-DeFi
+ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--sand-bg);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(34, 26, 22, 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 80% 60%, rgba(217, 119, 6, 0.04) 0%, transparent 50%);
+  color: var(--sand-text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+@media (min-width: 768px) {
+  body { font-size: 18px; }
+}
+@media (min-width: 1024px) {
+  body { font-size: 19px; }
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Cards: glassmorphism + earthy border */
+.card {
+  background: var(--sand-bg-card);
+  backdrop-filter: blur(var(--blur-card));
+  -webkit-backdrop-filter: blur(var(--blur-card));
+  border: 1px solid rgba(146, 64, 14, 0.4);
+  border-radius: var(--radius-pixel);
+  padding: var(--space-5);
+}
+@media (min-width: 1024px) {
+  .card { padding: var(--space-6); }
+}
+
+.card--primary {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 12px 20px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  border: none;
+  border-radius: var(--radius-pixel);
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter 0.15s ease;
+}
+@media (min-width: 1024px) {
+  .btn { padding: 14px 24px; font-size: var(--text-base); }
+}
+
+.btn:active {
+  filter: brightness(0.9);
+}
+
+.btn--primary {
+  background: var(--sand-orange);
+  color: var(--sand-bg);
+}
+
+.btn--secondary {
+  background: var(--sand-muted);
+  color: var(--sand-text);
+  border: 1px solid var(--sand-border);
+}
+
+/* Blocky progress / LTV gauge */
+.gauge {
+  height: 16px;
+  border-radius: var(--radius-pixel);
+  background: var(--sand-muted);
+  overflow: hidden;
+}
+
+.gauge__fill {
+  height: 100%;
+  border-radius: var(--radius-pixel);
+  /* Use stepped gradient in component */
+}
+
+/* Layout */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.stack > * + * {
+  margin-top: var(--space-4);
+}
+
+.stack--sm > * + * {
+  margin-top: var(--space-2);
+}
+
+/* Bottom nav (mobile) */
+.nav-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2) 0;
+  background: var(--sand-bg-card);
+  backdrop-filter: blur(var(--blur-card));
+  border-top: 1px solid var(--sand-border);
+}
+
+.nav-bottom a {
+  color: var(--sand-text-muted);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+@media (min-width: 768px) {
+  .nav-bottom a { font-size: var(--text-base); }
+}
+
+.nav-bottom a.active {
+  color: var(--sand-orange);
+}
+
+/* App & landing: warmer nav links so they read clearly */
+.app-page header nav a,
+.app-page header [aria-label="Main"] a,
+.app-page .nav-bottom a,
+.landing-page header a[href] {
+  color: var(--sand-nav-link);
+  transition: color 0.15s ease;
+}
+.app-page header nav a:hover,
+.app-page header [aria-label="Main"] a:hover,
+.app-page .nav-bottom a:hover:not(.active),
+.landing-page header a[href]:hover {
+  color: var(--sand-text);
+}
+.app-page header nav a.font-medium,
+.app-page header [aria-label="Main"] a.font-medium,
+.app-page .nav-bottom a.active {
+  color: var(--sand-orange);
+}
+.landing-page header .btn--primary {
+  color: var(--sand-bg);
+}
+.landing-page header .landing-container > a:first-child {
+  color: var(--sand-text);
+}
+.landing-page header .landing-container > a:first-child:hover {
+  color: var(--sand-text);
+}
+
+/* App header nav: readable link size on desktop */
+@media (min-width: 1024px) {
+  .app-page header nav[aria-label="Main"] a,
+  .app-page header .app-container > nav a {
+    font-size: var(--text-base);
+  }
+}
+
+/* Content area above fixed nav */
+.main-with-nav {
+  padding-bottom: 72px;
+}

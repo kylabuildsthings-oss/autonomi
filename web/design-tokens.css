@@ -1,0 +1,51 @@
+/**
+ * Autonomi Sandy Pixel-DeFi design tokens
+ * 16-bit pixel aesthetic, warm desert palette
+ */
+:root {
+  /* Core palette */
+  --sand-bg: #1a1310;
+  --sand-bg-warm: #221a16;
+  --sand-bg-card: rgba(34, 26, 22, 0.92);
+  --sand-ochre: #d97706;
+  --sand-orange: #f59e0b;
+  --sand-muted: #78350f;
+  --sand-border: #92400e;
+  --sand-text: #fef3c7;
+  --sand-text-muted: #b8a99a;
+  --sand-nav-link: #c4b89a;
+
+  /* Type scale (relative to root font-size) */
+  --text-xs: 0.875rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* LTV gauge (stepped gradient) */
+  --ltv-green: #22c55e;
+  --ltv-yellow: #eab308;
+  --ltv-orange: #f59e0b;
+  --ltv-red: #dc2626;
+
+  /* Spacing grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Typography */
+  --font-heading: "Space Grotesk", "Courier New", monospace;
+  --font-body: system-ui, -apple-system, sans-serif;
+
+  /* Effects */
+  --radius-pixel: 4px;
+  --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.2);
+  --blur-card: 10px;
+}

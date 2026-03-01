@@ -1,0 +1,158 @@
+/**
+ * App pages (dashboard, activity, assets, profile) — full width desktop, larger type
+ */
+
+.app-page .app-container {
+  max-width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .app-page .app-container { max-width: 860px; padding-left: 32px; padding-right: 32px; }
+}
+@media (min-width: 1024px) {
+  .app-page .app-container { max-width: 1400px; padding-left: 56px; padding-right: 56px; }
+}
+
+/* App base font slightly larger in viewport */
+.app-page { font-size: 18px; }
+@media (min-width: 1024px) {
+  .app-page { font-size: 19px; }
+}
+
+/* Minimum readable sizes: no tiny text in browser */
+.app-page .text-xs { font-size: var(--text-xs) !important; }
+.app-page .text-sm { font-size: var(--text-sm) !important; }
+.app-page .text-base { font-size: var(--text-base) !important; }
+@media (min-width: 1024px) {
+  .app-page .text-xs { font-size: var(--text-sm) !important; }
+  .app-page .text-sm { font-size: var(--text-base) !important; }
+  .app-page .text-base { font-size: 1.0625rem !important; }
+  .app-page .text-lg { font-size: var(--text-xl) !important; }
+}
+
+/* Content area: subtle depth so main content isn't flat */
+.app-page main {
+  position: relative;
+}
+.app-page main::before {
+  content: "";
+  position: absolute;
+  inset: -24px -16px -48px;
+  top: -12px;
+  left: -16px;
+  right: -16px;
+  bottom: -32px;
+  background: radial-gradient(ellipse 100% 80% at 50% 20%, rgba(34, 26, 22, 0.4) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  .app-page main::before { inset: -24px -24px -48px; }
+}
+@media (min-width: 1024px) {
+  .app-page main::before { inset: -32px -48px -64px; }
+}
+.app-page main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Main content area: generous vertical spacing */
+.app-page .resp-content-with-nav main,
+.app-page main {
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+}
+@media (min-width: 768px) {
+  .app-page .resp-content-with-nav main,
+  .app-page main { padding-top: 2rem; padding-bottom: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .app-page .resp-content-with-nav main,
+  .app-page main { padding-top: 2.5rem; padding-bottom: 2rem; }
+}
+
+/* Page titles: accent and presence */
+.app-page .page-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 1.5rem;
+  color: var(--sand-text);
+  padding-left: 14px;
+  border-left: 3px solid var(--sand-orange);
+}
+@media (min-width: 1024px) {
+  .app-page .page-title { font-size: 1.35rem; margin-bottom: 2rem; padding-left: 16px; }
+}
+
+/* Cards: warmer presence and clearer hierarchy */
+.app-page .card {
+  color: var(--sand-text);
+}
+.app-page .card__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--sand-text);
+  letter-spacing: 0.03em;
+}
+@media (min-width: 1024px) {
+  .app-page .card__title { font-size: 1.2rem; }
+}
+.app-page .card p,
+.app-page .card li {
+  color: var(--sand-text-muted);
+}
+.app-page .card--primary {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Stats / key numbers: pop */
+.app-page .font-heading.font-bold.text-sand-orange,
+.app-page [class*="oracle-price"],
+.app-page .ltv-value {
+  color: var(--sand-orange);
+  font-weight: 700;
+}
+
+/* Activity log (Agent page) and generic list blocks */
+.app-page .activity-item {
+  padding: 12px 0 12px 12px;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  border-bottom: 1px solid rgba(146, 64, 14, 0.25);
+  transition: border-left-color 0.15s ease, background 0.15s ease;
+}
+.app-page .activity-item:hover {
+  border-left-color: rgba(245, 158, 11, 0.5);
+  background: rgba(34, 26, 22, 0.25);
+}
+.app-page .activity-item:last-child {
+  border-bottom: none;
+}
+.app-page .activity-item__title {
+  color: var(--sand-text);
+  font-weight: 600;
+}
+.app-page .activity-item__meta {
+  color: var(--sand-text-muted);
+}
+.app-page .profile-section__title,
+.app-page [class*="profile-section"] .profile-section__title {
+  color: var(--sand-text-muted);
+  letter-spacing: 0.05em;
+}
+.app-page .wallet-address {
+  color: var(--sand-text);
+}
+
+/* Slightly larger base and headings on desktop */
+@media (min-width: 1024px) {
+  .app-page .font-heading.text-lg { font-size: 1.35rem; }
+}

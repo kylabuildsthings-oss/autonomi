@@ -1,0 +1,38 @@
+{
+  "name": "autonomi-backend",
+  "version": "1.0.0",
+  "description": "Agent backend for Autonomi on Arc Testnet",
+  "type": "module",
+  "main": "dist/bootstrap.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/bootstrap.js",
+    "dev": "npm run build && concurrently \"tsc -w\" \"nodemon --delay 2 dist/bootstrap.js\"",
+    "dev:build": "npm run build && node dist/bootstrap.js",
+    "test:agent": "node src/test-agent-run.mjs",
+    "test:agent:run": "node dist/test-agent.js",
+    "test:agent:ping": "tsc && node dist/test-agent-ping.js",
+    "test:agent:tsx": "tsx src/test-agent.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.1.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0",
+    "node-cron": "^3.0.3",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18 <24"
+  }
+}

@@ -1,0 +1,70 @@
+/**
+ * Landing page — full-width desktop, larger type, visual presence
+ */
+
+/* Wider container: use browser space better */
+.landing-page .landing-container {
+  max-width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .landing-page .landing-container { max-width: 860px; padding-left: 32px; padding-right: 32px; }
+}
+@media (min-width: 1024px) {
+  .landing-page .landing-container { max-width: 1400px; padding-left: 56px; padding-right: 56px; }
+}
+
+/* Landing: no tiny text */
+.landing-page .text-xs { font-size: var(--text-xs) !important; }
+.landing-page .text-sm { font-size: var(--text-sm) !important; }
+.landing-page .text-base { font-size: var(--text-base) !important; }
+@media (min-width: 1024px) {
+  .landing-page .text-xs { font-size: var(--text-sm) !important; }
+  .landing-page .text-sm { font-size: var(--text-base) !important; }
+  .landing-page .text-base { font-size: 1.0625rem !important; }
+  .landing-page .text-lg { font-size: var(--text-xl) !important; }
+  .landing-page .text-xl { font-size: var(--text-2xl) !important; }
+}
+
+/* Hero: full-bleed background with gradient + grid */
+.landing-hero {
+  position: relative;
+  overflow: hidden;
+}
+.landing-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 60% 10%, rgba(217, 119, 6, 0.18) 0%, transparent 45%),
+    radial-gradient(ellipse 70% 50% at 30% 90%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 85% 50%, rgba(146, 64, 14, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+.landing-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(146, 64, 14, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(146, 64, 14, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* Feature icons larger on desktop */
+@media (min-width: 1024px) {
+  .landing-page .feature-icon { width: 52px; height: 52px; font-size: 1.35rem; }
+}
+
+/* Stats strip: full-width band on desktop */
+@media (min-width: 1024px) {
+  .landing-stats-wrap {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding-left: max(48px, calc(50vw - 700px));
+    padding-right: max(48px, calc(50vw - 700px));
+  }
+}

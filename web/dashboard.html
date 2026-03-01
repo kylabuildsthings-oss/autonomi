@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard — Autonomi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sand: {
+              bg: '#1a1310',
+              'bg-card': 'rgba(26, 19, 16, 0.85)',
+              ochre: '#d97706',
+              orange: '#f59e0b',
+              muted: '#78350f',
+              border: '#92400e',
+              text: '#fef3c7',
+              'text-muted': '#a8a29e',
+            },
+            ltv: { green: '#22c55e', yellow: '#eab308', orange: '#f59e0b', red: '#dc2626' }
+          },
+          fontFamily: { heading: ['"Space Grotesk"', 'monospace'] },
+          minHeight: { touch: '44px' },
+          spacing: { 18: '4.5rem', 22: '5.5rem' }
+        }
+      },
+      screens: { md: '768px', lg: '1024px' }
+    }
+  </script>
+  <link rel="stylesheet" href="design-tokens.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <link rel="stylesheet" href="app.css" />
+  <style>
+    .dashboard-loading { text-align: center; padding: 2rem; color: var(--sand-text-muted); }
+    .dashboard-error { font-size: 1rem; color: #f87171; margin-top: 0.5rem; }
+    body { font-size: 16px; }
+    summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="app-page bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
+  <!-- Header: mobile hamburger+logo | tablet logo+3 nav+hamburger | desktop full nav -->
+  <header class="sticky top-0 z-40 w-full border-b border-sand-border bg-sand-bg-card backdrop-blur-sm px-4 py-3 md:px-6 lg:px-12">
+    <div class="app-container flex items-center justify-between gap-4">
+      <a href="index.html" class="font-heading font-bold text-lg text-sand-text no-underline">Autonomi</a>
+
+      <!-- Desktop: full nav (hidden mobile/tablet) -->
+      <nav class="hidden lg:flex items-center gap-6" aria-label="Main">
+        <a href="dashboard.html" class="text-sand-orange font-medium">Home</a>
+        <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
+        <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
+        <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
+        <a href="strategy.html" class="text-sand-text-muted hover:text-sand-text no-underline">Strategy</a>
+        <a href="docs.html" class="text-sand-text-muted hover:text-sand-text no-underline">Docs</a>
+      </nav>
+
+      <!-- Tablet: 3 key nav (hidden mobile, hidden desktop) -->
+      <nav class="hidden md:flex lg:hidden items-center gap-4" aria-label="Main">
+        <a href="dashboard.html" class="text-sand-orange text-sm no-underline">Home</a>
+        <a href="activity.html" class="text-sand-text-muted text-sm no-underline">Agent</a>
+        <a href="profile.html" class="text-sand-text-muted text-sm no-underline">Settings</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+        <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text md:min-w-0 lg:hidden" aria-label="Open menu">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tablet: top tabs (replaces bottom nav) -->
+    <div class="hidden md:flex lg:hidden border-t border-sand-border px-4 py-2 gap-1 overflow-x-auto">
+      <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-orange text-sm font-medium no-underline shrink-0">🏠 Home</a>
+      <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
+      <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
+      <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
+    </div>
+  </header>
+
+  <!-- Mobile menu drawer (hidden by default) -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 bg-sand-bg/95 backdrop-blur lg:hidden hidden" aria-hidden="true">
+    <div class="flex flex-col h-full pt-20 px-4 pb-8">
+      <nav class="flex flex-col gap-1" aria-label="Mobile menu">
+        <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">🏠 Home</a>
+        <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
+        <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
+        <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="app-container resp-content-with-nav pb-22 md:pb-6">
+    <p id="dashboard-loading" class="dashboard-loading" hidden>Loading live data…</p>
+    <p id="dashboard-error" class="dashboard-error" hidden></p>
+
+    <main id="dashboard-main" class="py-4 md:py-6 lg:py-8">
+      <!-- Stats grid: 1 col mobile → 2 tablet → 4 desktop -->
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8" aria-label="Key stats">
+        <div class="card text-center">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">TVL</p>
+          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">$12.4M</p>
+        </div>
+        <div class="card text-center">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Active Agents</p>
+          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">4,208</p>
+        </div>
+        <div class="card text-center">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Avg APY</p>
+          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">12.8%</p>
+        </div>
+        <div class="card text-center">
+          <p class="text-xs uppercase tracking-wider text-sand-text-muted m-0">Settlement</p>
+          <p class="font-heading font-bold text-sand-orange text-lg mt-1 m-0">&lt;1s</p>
+        </div>
+      </section>
+
+      <!-- Main content: mobile stacked | desktop split (position left + activity right) -->
+      <div class="lg:grid lg:grid-cols-3 lg:gap-6">
+        <!-- Position card: full width mobile/tablet, left column desktop -->
+        <div class="lg:col-span-2 space-y-4">
+          <span id="position" class="block -mt-24 pt-24" aria-hidden="true"></span>
+          <section id="position-card" class="card card--primary">
+            <h2 class="card__title">Circle Managed Wallet</h2>
+
+            <div id="position-empty" class="stack--sm" hidden>
+              <p class="m-0 text-sand-text-muted text-base">No active position. Deposit USYC and borrow USDC to get started.</p>
+            </div>
+
+            <div id="position-content">
+              <!-- Mobile: compact stacked | Tablet+: horizontal -->
+              <div class="flex flex-col md:flex-row md:flex-wrap md:gap-4">
+                <div class="position-row flex-1 min-w-0">
+                  <span class="position-row__label">
+                    <span class="token-icon token-icon--usyc" aria-hidden="true">◇</span>
+                    Collateral Deposit
+                  </span>
+                  <span id="position-usyc" class="position-row__value">— USYC</span>
+                </div>
+                <div class="position-row flex-1 min-w-0">
+                  <span class="position-row__label">
+                    <span class="token-icon token-icon--usdc" aria-hidden="true">◆</span>
+                    USDC Loan
+                  </span>
+                  <span id="position-usdc" class="position-row__value">— USDC</span>
+                </div>
+              </div>
+
+              <!-- LTV: mobile percentage only | md+ full gauge -->
+              <div class="ltv-section mt-4 pt-3 border-t border-sand-border">
+                <span class="ltv-section__label">LTV Power Gauge</span>
+                <div class="hidden md:block">
+                  <div class="gauge h-5 rounded" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Loan-to-value">
+                    <div id="ltv-gauge-fill" class="ltv-gauge__fill h-full rounded-r" style="width: 0%;" aria-valuenow="0"></div>
+                  </div>
+                </div>
+                <div id="ltv-value" class="ltv-value mt-1 md:mt-2">0%</div>
+              </div>
+
+              <!-- Desktop: quick actions -->
+              <div class="hidden lg:flex gap-2 mt-4 pt-3 border-t border-sand-border">
+                <button type="button" class="btn btn--primary text-sm">Deposit</button>
+                <button type="button" class="btn btn--secondary text-sm">Borrow</button>
+                <button type="button" class="btn btn--secondary text-sm">Repay</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Stork Oracle: full width -->
+          <section class="card">
+            <div class="oracle-card">
+              <h2 class="card__title">Stork Price Oracle</h2>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="oracle-price" class="oracle-price">USYC Price: $—</span>
+                <span class="stork-badge">Stork <span class="stork-badge__check">✓</span></span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right column desktop: Agent activity + Alerts -->
+        <div class="lg:col-span-1 space-y-4 mt-4 lg:mt-0">
+          <!-- Agent Activity: 3 mobile, 5 tablet, 10 desktop -->
+          <section class="card" aria-label="Agent activity">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="card__title m-0">Agent Activity</h2>
+              <a href="activity.html" class="text-sand-orange text-sm no-underline">View all</a>
+            </div>
+            <ul class="list-none p-0 m-0 space-y-2 max-h-48 md:max-h-64 lg:max-h-96 overflow-y-auto" id="agent-activity-list">
+              <li class="text-sm py-2 border-b border-sand-border last:border-0">
+                <span class="font-heading font-medium">Portfolio Rebalance</span>
+                <p class="text-sand-text-muted text-xs m-0 mt-0.5">63% → 60% risk weight</p>
+              </li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0">
+                <span class="font-heading font-medium">Yield Harvested</span>
+                <p class="text-sand-text-muted text-xs m-0 mt-0.5">6.0 USYC from vaults</p>
+              </li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0">
+                <span class="font-heading font-medium">Monitoring</span>
+                <p class="text-sand-text-muted text-xs m-0 mt-0.5">Stork Oracle price check</p>
+              </li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0 hidden md:block">
+                <span class="font-heading font-medium">Position Check</span>
+                <p class="text-sand-text-muted text-xs m-0 mt-0.5">LTV within target</p>
+              </li>
+              <li class="text-sm py-2 hidden md:block">
+                <span class="font-heading font-medium">Agent Cycle</span>
+                <p class="text-sand-text-muted text-xs m-0 mt-0.5">Next in 5 min</p>
+              </li>
+              <!-- Desktop: 5 more placeholder items -->
+              <li class="text-sm py-2 border-b border-sand-border last:border-0 hidden lg:block"><span class="font-heading font-medium">Rebalance</span><p class="text-sand-text-muted text-xs m-0 mt-0.5">60% target</p></li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0 hidden lg:block"><span class="font-heading font-medium">Harvest</span><p class="text-sand-text-muted text-xs m-0 mt-0.5">Yield collected</p></li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0 hidden lg:block"><span class="font-heading font-medium">Oracle</span><p class="text-sand-text-muted text-xs m-0 mt-0.5">$1.05 USYC</p></li>
+              <li class="text-sm py-2 border-b border-sand-border last:border-0 hidden lg:block"><span class="font-heading font-medium">Monitor</span><p class="text-sand-text-muted text-xs m-0 mt-0.5">Position OK</p></li>
+              <li class="text-sm py-2 hidden lg:block"><span class="font-heading font-medium">Cycle</span><p class="text-sand-text-muted text-xs m-0 mt-0.5">Completed</p></li>
+            </ul>
+            <p class="text-xs text-sand-text-muted mt-2 m-0">Secured by Circle Smart Contracts</p>
+          </section>
+
+          <!-- SMS Alerts: collapsible mobile | always visible md+ -->
+          <section id="alerts" class="card" aria-label="SMS Alerts">
+            <details class="group md:block" open>
+              <summary class="list-none cursor-pointer min-touch flex items-center justify-between gap-2 py-1 -mx-1 px-1 rounded">
+                <h2 class="card__title m-0">📟 SMS Alerts</h2>
+                <span class="text-sand-text-muted text-sm md:hidden group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div class="mt-3 pt-3 border-t border-sand-border">
+                <p class="text-sm text-sand-text-muted m-0 mb-2">Alerts active for +1 (555) ***-1234</p>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 cursor-pointer text-base">
+                    <input type="checkbox" checked class="rounded border-sand-border w-4 h-4" />
+                    <span>Transaction notifications</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer text-base">
+                    <input type="checkbox" checked class="rounded border-sand-border w-4 h-4" />
+                    <span>Account security alerts</span>
+                  </label>
+                </div>
+                <a href="profile.html" class="btn btn--primary mt-3 inline-block no-underline">Sync Settings</a>
+                <a href="alerts.html" class="block mt-2 text-sm text-sand-orange hover:underline no-underline">Manage alerts →</a>
+              </div>
+            </details>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom nav: 5 items, mobile only -->
+  <nav class="nav-bottom resp-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 border-t border-sand-border bg-sand-bg-card backdrop-blur md:hidden" aria-label="Main">
+    <a href="dashboard.html" class="active min-touch flex flex-col items-center justify-center gap-0.5 no-underline">🏠 <span>Home</span></a>
+    <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
+    <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
+    <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('menu-toggle')?.addEventListener('click', function() {
+      const menu = document.getElementById('mobile-menu');
+      const open = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', open);
+      menu.setAttribute('aria-hidden', open);
+    });
+    document.getElementById('mobile-menu')?.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.add('hidden');
+        document.getElementById('mobile-menu').setAttribute('aria-hidden', 'true');
+      });
+    });
+  </script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

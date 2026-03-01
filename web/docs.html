@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Documentation — Autonomi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { sand: { bg: '#1a1310', 'bg-card': 'rgba(26,19,16,0.85)', orange: '#f59e0b', muted: '#78350f', border: '#92400e', text: '#fef3c7', 'text-muted': '#a8a29e' } }, fontFamily: { heading: ['"Space Grotesk"', 'monospace'] }, minHeight: { touch: '44px' } } }, screens: { md: '768px', lg: '1024px' } }</script>
+  <link rel="stylesheet" href="design-tokens.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="responsive.css" />
+  <link rel="stylesheet" href="landing.css" />
+  <link rel="stylesheet" href="app.css" />
+  <style>
+    body { font-size: 16px; }
+    .docs-page .landing-container { max-width: 100%; padding-left: 16px; padding-right: 16px; margin-left: auto; margin-right: auto; }
+    @media (min-width: 768px) { .docs-page .landing-container { max-width: 720px; padding-left: 24px; padding-right: 24px; } }
+    @media (min-width: 1024px) { .docs-page .landing-container { max-width: 1400px; padding-left: 48px; padding-right: 48px; } }
+    .docs-content h2 { font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; margin: 2rem 0 0.75rem; color: var(--sand-text); }
+    .docs-content h3 { font-family: var(--font-heading); font-weight: 600; font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--sand-text); }
+    .docs-content p, .docs-content li { color: var(--sand-text-muted); line-height: 1.6; margin: 0 0 0.5rem; }
+    .docs-content ul { padding-left: 1.5rem; margin: 0 0 1rem; }
+    .docs-content code { background: var(--sand-muted); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+    .docs-content pre { background: var(--sand-muted); border: 1px solid var(--sand-border); border-radius: 4px; padding: 1rem; overflow-x: auto; margin: 0.75rem 0; font-size: 0.875rem; }
+    .docs-nav a { display: block; padding: 0.35rem 0; color: var(--sand-text-muted); text-decoration: none; font-size: 0.95rem; }
+    .docs-nav a:hover { color: var(--sand-orange); }
+  </style>
+</head>
+<body class="docs-page app-page bg-sand-bg text-sand-text font-sans antialiased" style="font-family: var(--font-body);">
+  <header class="sticky top-0 z-40 w-full border-b border-sand-border bg-sand-bg-card backdrop-blur-sm px-4 py-3 md:px-6 lg:px-12">
+    <div class="app-container flex items-center justify-between gap-4">
+      <a href="index.html" class="font-heading font-bold text-lg text-sand-text no-underline">Autonomi</a>
+
+      <nav class="hidden lg:flex items-center gap-6" aria-label="Main">
+        <a href="dashboard.html" class="text-sand-text-muted hover:text-sand-text no-underline">Home</a>
+        <a href="activity.html" class="text-sand-text-muted hover:text-sand-text no-underline">Agent</a>
+        <a href="alerts.html" class="text-sand-text-muted hover:text-sand-text no-underline">Alerts</a>
+        <a href="profile.html" class="text-sand-text-muted hover:text-sand-text no-underline">Settings</a>
+        <a href="strategy.html" class="text-sand-text-muted hover:text-sand-text no-underline">Strategy</a>
+        <a href="docs.html" class="text-sand-orange font-medium no-underline">Docs</a>
+      </nav>
+
+      <nav class="hidden md:flex lg:hidden items-center gap-4" aria-label="Main">
+        <a href="dashboard.html" class="text-sand-text-muted text-sm no-underline">Home</a>
+        <a href="activity.html" class="text-sand-text-muted text-sm no-underline">Agent</a>
+        <a href="profile.html" class="text-sand-text-muted text-sm no-underline">Settings</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline text-xs uppercase tracking-wider text-sand-text-muted">Arc Protocol</span>
+        <button type="button" id="menu-toggle" class="min-touch flex items-center justify-center rounded border border-sand-border bg-transparent p-2 text-sand-text md:min-w-0 lg:hidden" aria-label="Open menu">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="hidden md:flex lg:hidden border-t border-sand-border px-4 py-2 gap-1 overflow-x-auto">
+      <a href="dashboard.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🏠 Home</a>
+      <a href="activity.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">🤖 Agent</a>
+      <a href="alerts.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">📟 Alerts</a>
+      <a href="profile.html" class="min-touch flex items-center gap-1.5 rounded px-3 text-sand-text-muted text-sm no-underline shrink-0">⚙️ Settings</a>
+    </div>
+  </header>
+
+  <div id="mobile-menu" class="fixed inset-0 z-50 bg-sand-bg/95 backdrop-blur lg:hidden hidden" aria-hidden="true">
+    <div class="flex flex-col h-full pt-20 px-4 pb-8">
+      <nav class="flex flex-col gap-1" aria-label="Mobile menu">
+        <a href="dashboard.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🏠 Home</a>
+        <a href="activity.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">🤖 Agent</a>
+        <a href="alerts.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">📟 Alerts</a>
+        <a href="profile.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">⚙️ Settings</a>
+        <a href="strategy.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-text no-underline">Strategy</a>
+        <a href="docs.html" class="min-touch flex items-center gap-3 rounded-lg px-4 py-3 text-sand-orange font-medium no-underline">Docs</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="landing-container px-4 py-8 md:py-12 lg:py-16 pb-22 md:pb-12 resp-content-with-nav">
+    <div class="lg:grid lg:grid-cols-[240px_1fr] lg:gap-12">
+      <aside class="mb-8 lg:mb-0 lg:sticky lg:top-24 lg:self-start">
+        <nav class="docs-nav" aria-label="Docs">
+          <a href="#overview">Overview</a>
+          <a href="#getting-started">Getting Started</a>
+          <a href="#protocol">Protocol</a>
+          <a href="#api">API</a>
+          <a href="#references">References</a>
+        </nav>
+      </aside>
+
+      <main class="docs-content min-w-0">
+        <h1 class="font-heading font-bold text-2xl md:text-4xl lg:text-5xl text-sand-text mb-2">Documentation</h1>
+        <p class="text-sand-text-muted text-base md:text-lg mb-10">Setup, protocol behaviour, and API reference for Autonomi.</p>
+
+        <h2 id="overview">Overview</h2>
+        <p>Autonomi is an AI-powered lending agent on the Arc blockchain. Users deposit USYC as collateral and borrow USDC. An automated agent monitors loan-to-value (LTV) and calls <code>autoRebalance</code> when LTV exceeds a threshold, keeping positions within safe bounds. The stack includes Solidity contracts (Foundry), a Node.js/TypeScript backend agent, and a static web dashboard.</p>
+
+        <h2 id="getting-started">Getting Started</h2>
+        <h3>1. Clone and env</h3>
+        <p>Copy <code>.env.example</code> to <code>.env</code> in the project root and in <code>backend/</code>. Set <code>ARC_TESTNET_RPC_URL</code> (e.g. <code>https://rpc.testnet.arc.network</code>) and <code>PRIVATE_KEY</code> (your deployer wallet).</p>
+        <h3>2. Fund the wallet</h3>
+        <p>Get testnet USDC from the <a href="https://faucet.circle.com" class="text-sand-orange no-underline">Circle Faucet</a> — choose Arc Testnet and paste your wallet address.</p>
+        <h3>3. Deploy contracts</h3>
+        <p>From the repo root, with Foundry installed:</p>
+        <pre>source .env
+forge build
+# Deploy Autonomi + mocks (see script/DeployWithMockCollateral.s.sol)
+# Save AUTONOMI_ADDRESS in backend/.env</pre>
+        <h3>4. Run the backend</h3>
+        <p>In <code>backend/.env</code> set <code>AUTONOMI_ADDRESS</code> and <code>AGENT_PRIVATE_KEY</code> (same as deployer key). Authorize the agent on-chain:</p>
+        <pre>cast send $AUTONOMI_ADDRESS "authorizeAgent(address)" &lt;YOUR_DEPLOYER_ADDRESS&gt; \
+  --rpc-url $ARC_TESTNET_RPC_URL --private-key $PRIVATE_KEY</pre>
+        <p>Then run <code>npm run dev</code> in <code>backend/</code>.</p>
+        <h3>5. Open the web app</h3>
+        <p>Serve the <code>web/</code> folder (e.g. <code>python3 -m http.server 8787 --directory web</code>) and open the dashboard. It will request live data from <code>http://localhost:3000/api/dashboard</code>.</p>
+
+        <h2 id="protocol">Protocol</h2>
+        <h3>Autonomi contract</h3>
+        <p>Core functions: <code>depositCollateral(amount)</code>, <code>borrow(amount)</code>, <code>repay(amount)</code>. LTV is computed as (USDC borrowed × 10000 × 1e18) / (USYC deposited × USYC price). Only an authorized agent can call <code>autoRebalance(user, targetLTVBps)</code> to bring a position toward the target LTV (e.g. 60%).</p>
+        <h3>LTV and rebalancing</h3>
+        <p>When LTV exceeds a threshold (e.g. 65%), the backend agent calls <code>autoRebalance(user, 6000)</code> (60% target). The contract repays debt or adjusts collateral as needed. The agent runs on a cron (e.g. every 5 minutes) and checks all watched addresses.</p>
+        <h3>Oracles</h3>
+        <p>USYC price is read from a teller contract (on testnet, MockTeller returns a fixed price). In production, Stork oracle feeds are used.</p>
+
+        <h2 id="api">API</h2>
+        <p>The backend exposes a read-only dashboard endpoint:</p>
+        <h3>GET /api/dashboard</h3>
+        <p><strong>Query:</strong> <code>address</code> (optional) — Ethereum address to fetch position for. If omitted, the server uses a default (first entry in WATCH_ADDRESSES or AUTONOMI_DEFAULT_VIEWER).</p>
+        <p><strong>Response:</strong></p>
+        <pre>{
+  "usycPrice": "1.05",
+  "position": {
+    "usycDeposited": "1000",
+    "usdcBorrowed": "600",
+    "ltvBps": 5700,
+    "active": true
+  }
+}</pre>
+        <p>If there is no active position, <code>position</code> is <code>null</code>. CORS is enabled for the web app.</p>
+
+        <h2 id="references">References</h2>
+        <ul>
+          <li><a href="https://docs.arc.network" class="text-sand-orange no-underline">Arc documentation</a></li>
+          <li><a href="https://faucet.circle.com" class="text-sand-orange no-underline">Circle Faucet</a> (Arc Testnet)</li>
+          <li><a href="https://testnet.arcscan.app" class="text-sand-orange no-underline">Arc testnet explorer</a></li>
+          <li><a href="strategy.html" class="text-sand-orange no-underline">Strategy &amp; Roadmap</a></li>
+        </ul>
+      </main>
+    </div>
+
+    <footer class="pt-12 mt-12 border-t border-sand-border">
+      <p class="text-sm text-sand-text-muted m-0">Built on Arc • Powered by Circle • Guarded by Stork</p>
+      <p class="mt-2 text-sm m-0"><a href="index.html" class="text-sand-orange no-underline">← Back to home</a></p>
+    </footer>
+  </div>
+
+  <nav class="nav-bottom resp-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 border-t border-sand-border bg-sand-bg-card backdrop-blur md:hidden" aria-label="Main">
+    <a href="dashboard.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🏠 <span>Home</span></a>
+    <a href="activity.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">🤖 <span>Agent</span></a>
+    <a href="alerts.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">📟 <span>Alerts</span></a>
+    <a href="profile.html" class="min-touch flex flex-col items-center justify-center gap-0.5 text-sand-text-muted no-underline">⚙️ <span>Settings</span></a>
+  </nav>
+
+  <script>
+    document.getElementById('menu-toggle')?.addEventListener('click', function() {
+      var menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+      menu.setAttribute('aria-hidden', menu.classList.contains('hidden'));
+    });
+    document.getElementById('mobile-menu')?.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() { document.getElementById('mobile-menu').classList.add('hidden'); document.getElementById('mobile-menu').setAttribute('aria-hidden', 'true'); });
+    });
+  </script>
+</body>
+</html>

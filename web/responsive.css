@@ -1,0 +1,98 @@
+/**
+ * Responsive overrides — Tailwind-friendly, mobile-first
+ * Breakpoints: mobile (default), md: 768px, lg: 1024px
+ */
+
+/* Touch targets minimum 44px (nav items, buttons) */
+.min-touch {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Container max-widths per breakpoint */
+.resp-container {
+  max-width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .resp-container { max-width: 720px; }
+}
+@media (min-width: 1024px) {
+  .resp-container { max-width: 1200px; padding-left: 24px; padding-right: 24px; }
+}
+
+/* Bottom nav: 5 items, safe area */
+.nav-bottom.resp-nav {
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+.nav-bottom.resp-nav a {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  font-size: var(--text-sm);
+}
+@media (min-width: 768px) {
+  .nav-bottom.resp-nav a { font-size: var(--text-base); }
+}
+
+/* Top tabs (tablet): hide bottom nav, show top tabs */
+@media (min-width: 768px) {
+  .nav-bottom.resp-nav { display: none; }
+  .resp-content-with-nav { padding-bottom: 24px; }
+}
+@media (min-width: 1024px) {
+  .nav-bottom.resp-nav { display: none; }
+  .resp-content-with-nav { padding-bottom: 32px; }
+}
+
+/* Desktop: tooltip-style hints (keyboard shortcuts) */
+@media (min-width: 1024px) {
+  .lg-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    background: var(--sand-muted);
+    border: 1px solid var(--sand-border);
+    border-radius: var(--radius-pixel);
+    z-index: 10;
+  }
+}
+
+/* Modal: full-screen drawer mobile, centered desktop */
+.resp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .resp-modal { align-items: center; }
+  .resp-modal-inner { width: 80%; max-height: 90vh; border-radius: var(--radius-pixel); }
+}
+@media (min-width: 1024px) {
+  .resp-modal-inner { width: 500px; }
+}
+
+/* Table horizontal scroll with sticky first column */
+.resp-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.resp-table th:first-child,
+.resp-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--sand-bg-card);
+  z-index: 1;
+}

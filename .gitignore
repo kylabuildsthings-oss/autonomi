@@ -1,0 +1,23 @@
+# Dependencies
+lib/
+node_modules/
+
+# Build & artifacts
+out/
+dist/
+cache/
+broadcast/
+
+# Env and secrets (never commit private keys)
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Test / temp
+test-agent-out.txt
+backend/test-agent-out.txt

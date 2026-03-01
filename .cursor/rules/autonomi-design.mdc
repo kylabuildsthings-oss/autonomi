@@ -1,0 +1,30 @@
+---
+description: Autonomi Sandy Pixel-DeFi UI design system
+globs: web/**/*.{html,css,js,tsx,jsx,vue}
+alwaysApply: false
+---
+
+# Autonomi Sandy Pixel-DeFi Style
+
+## Palette
+- **Background**: deep brown `#1a1310`
+- **Primary**: sandy orange `#f59e0b`, rich ochre `#d97706`
+- **Secondary**: muted sand `#78350f`
+- **Borders**: earthy tones; cards use thin borders + subtle glow on active
+
+## Typography
+- Headers: blocky, tech-focused (e.g. Space Grotesque or pixel font)
+- Body: highly legible
+
+## Components
+- **Cards**: Dark semi-transparent bg, `backdrop-filter: blur()`, thin earthy border; active/primary get accent box-shadow
+- **Buttons**: Bold, sharp corners or 4px radius. Primary: `#f59e0b` bg, dark text
+- **Gauges**: Blocky progress bars; LTV gradient green → yellow → orange/red, stepped/pixelated
+- **Icons**: 16-bit pixel style (water drop USDC, spice USYC, stork oracle)
+- **Spacing**: 16px / 8px grid; pixel-perfect alignment
+
+## Terminology (use exactly)
+Collateral Deposit (USYC), USDC Loan, Portfolio Rebalance, Yield Harvested, LTV Power Gauge, Stork Oracle, Circle Managed Wallets. Footer: "Built on Arc • Powered by Circle • Guarded by Stork". Price badge: "USYC Price: $1.05 [Stork ✓]"
+
+## Layout
+Mobile-first; single-column; clear bottom nav. Sample stats: TVL $12.4M, AVG APY 12.8%, Settlement &lt;1s.
