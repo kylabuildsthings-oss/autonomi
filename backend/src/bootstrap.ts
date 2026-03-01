@@ -3,4 +3,9 @@
  * Run: node dist/bootstrap.js (or point "main" / dev script here).
  */
 console.log("[server] Starting Autonomi backend...");
-await import("./index.js");
+try {
+  await import("./index.js");
+} catch (e) {
+  console.error("[server] Failed to start:", e);
+  process.exit(1);
+}

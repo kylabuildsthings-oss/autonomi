@@ -3,6 +3,8 @@ import { createPublicClient, createWalletClient, http, type Address } from "viem
 import { privateKeyToAccount } from "viem/accounts";
 import cron from "node-cron";
 import { autonomiAbi } from "./abi/autonomi.js";
+import { getPhone } from "./sms/registry.js";
+import { sendAlert } from "./sms/twilio-client.js";
 
 const ARC_CHAIN_ID = Number(process.env["ARC_CHAIN_ID"] ?? 5042002);
 const AUTONOMI_ADDRESS = (process.env["AUTONOMI_ADDRESS"] ?? "0x4b7f00672B96B489F227469f9c106623d5de5779") as Address;
@@ -166,6 +168,13 @@ export class AutonomiAgent {
       account: this.account,
     });
     log("info", "autoRebalance tx sent", { user, txHash: hash });
+
+    const phone = await getPhone(user);
+    if (phone) {
+      const targetPct = Number(targetLTV) / 100;
+      const msg = `Autonomi: Your position was rebalanced to ${targetPct}% LTV. Tx: ${hash}`;
+      await sendAlert(phone, msg);
+    }
   }
 
   startCron(): void {
