@@ -1,6 +1,8 @@
 /**
- * SMS registry — wallet address → phone + preferences.
+ * SMS registry — one wallet (address) ↔ one phone number.
  * Persists to data/sms-registry.json (created if missing).
+ * Only the wallet owner can register or change the number (enforced by API via signature).
+ * A phone number can be linked to at most one wallet.
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -72,25 +74,38 @@ export function isValidPhone(phone: string): boolean {
   return cleaned.length >= 10 && cleaned.length <= 15;
 }
 
-/** Register or update phone and optional preferences. */
+/** Register or update phone and optional preferences. Only the wallet owner can set/change the number (enforced by API with signature). */
 export async function register(
   address: string,
   phone: string,
   preferences?: Partial<SmsPreferences>
-): Promise<void> {
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const addr = normalizeAddress(address);
   const data = await load();
+  const phoneTrimmed = phone.trim();
+  // One number per wallet: ensure this phone isn't already registered to a different wallet
+  for (const [existingAddr, entry] of Object.entries(data)) {
+    if (existingAddr === addr) continue;
+    if (entry.enabled && normalizePhone(entry.phone) === normalizePhone(phoneTrimmed)) {
+      return { ok: false, error: "This number is already linked to another wallet. Use that wallet to change it." };
+    }
+  }
   const existing = data[addr];
   const prefs: SmsPreferences = existing
     ? { ...existing.preferences, ...preferences }
     : { ...DEFAULT_PREFERENCES, ...preferences };
   data[addr] = {
-    phone: phone.trim(),
+    phone: phoneTrimmed,
     enabled: true,
     preferences: prefs,
     lastAlertAt: existing?.lastAlertAt ?? null,
   };
   await save(data);
+  return { ok: true };
+}
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
 }
 
 /** Update only preferences for an address. */

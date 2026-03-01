@@ -198,7 +198,11 @@ const server = createServer(async (req, res) => {
             testAlerts: !!body.preferences.testAlerts,
           }
         : undefined;
-      await registerSms(address, phone, prefs);
+      const result = await registerSms(address, phone, prefs);
+      if (!result.ok) {
+        sendJson(res, 409, { error: result.error });
+        return;
+      }
       sendJson(res, 200, { success: true, message: "Phone registered for SMS alerts" });
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -1023,7 +1027,11 @@ const server = createServer(async (req, res) => {
               testAlerts: !!body.preferences.testAlerts,
             }
           : undefined;
-        await registerSms(address, phone, prefs);
+        const result = await registerSms(address, phone, prefs);
+        if (!result.ok) {
+          apiV1Json(res, 409, { error: result.error }, result.error);
+          return;
+        }
         apiV1Json(res, 200, { success: true, message: "Phone registered for SMS alerts" });
       } catch (e) {
         if (e instanceof SyntaxError) {
