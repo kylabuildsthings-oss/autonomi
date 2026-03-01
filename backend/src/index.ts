@@ -64,6 +64,15 @@ function readBody(req: import("node:http").IncomingMessage): Promise<string> {
   });
 }
 
+function getClientIp(req: import("node:http").IncomingMessage): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) {
+    const first = typeof forwarded === "string" ? forwarded.split(",")[0] : forwarded[0];
+    if (first) return first.trim();
+  }
+  return req.socket?.remoteAddress ?? "";
+}
+
 const server = createServer(async (req, res) => {
   const url = req.url ?? "/";
   const parsed = new URL(url, `http://localhost:${PORT}`);
@@ -140,11 +149,15 @@ const server = createServer(async (req, res) => {
     setCors(res);
     try {
       const { register: registerSms, isValidPhone } = await import("./sms/registry.js");
+      const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+      const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
       const raw = await readBody(req);
       const body = JSON.parse(raw || "{}") as {
         address?: string;
         phone?: string;
         preferences?: Record<string, boolean>;
+        message?: string;
+        signature?: string;
       };
       const address = body.address?.trim();
       const phone = body.phone?.trim();
@@ -154,6 +167,26 @@ const server = createServer(async (req, res) => {
       }
       if (!phone || !isValidPhone(phone)) {
         sendJson(res, 400, { error: "Invalid or missing phone (use E.164, e.g. +15551234567)" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required. Sign the message in your wallet to register." });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkSmsRateLimit("register", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, {
+          error: "Too many registration attempts. Try again later.",
+          retryAfterSec: rate.retryAfterSec,
+        });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "register", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
         return;
       }
       const prefs = body.preferences
@@ -182,11 +215,38 @@ const server = createServer(async (req, res) => {
     setCors(res);
     try {
       const { updatePreferences } = await import("./sms/registry.js");
+      const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+      const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
       const raw = await readBody(req);
-      const body = JSON.parse(raw || "{}") as { address?: string; preferences?: Record<string, boolean> };
+      const body = JSON.parse(raw || "{}") as {
+        address?: string;
+        preferences?: Record<string, boolean>;
+        message?: string;
+        signature?: string;
+      };
       const address = body.address?.trim();
       if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
         sendJson(res, 400, { error: "Invalid or missing address" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required. Sign the message in your wallet to update preferences." });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkSmsRateLimit("preferences", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, {
+          error: "Too many requests. Try again later.",
+          retryAfterSec: rate.retryAfterSec,
+        });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "preferences", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
         return;
       }
       const p = body.preferences || {};
@@ -219,11 +279,33 @@ const server = createServer(async (req, res) => {
       const { getEntry, recordAlertSent } = await import("./sms/registry.js");
       const { sendAlert } = await import("./sms/twilio-client.js");
       const { getTestMessage } = await import("./sms/templates.js");
+      const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+      const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
       const raw = await readBody(req);
-      const body = JSON.parse(raw || "{}") as { address?: string };
+      const body = JSON.parse(raw || "{}") as { address?: string; message?: string; signature?: string };
       const address = body.address?.trim();
       if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
         sendJson(res, 400, { error: "Invalid or missing address" });
+        return;
+      }
+      const message = body.message?.trim();
+      const signature = body.signature;
+      if (!message || !signature) {
+        sendJson(res, 400, { error: "Wallet signature required. Sign the message in your wallet to send a test SMS." });
+        return;
+      }
+      const ip = getClientIp(req);
+      const rate = checkSmsRateLimit("test", address, ip);
+      if (!rate.allowed) {
+        sendJson(res, 429, {
+          error: "Too many test SMS requests. Try again later.",
+          retryAfterSec: rate.retryAfterSec,
+        });
+        return;
+      }
+      const auth = await requireSignedRequest(message, signature, "test", address);
+      if (!auth.ok) {
+        sendJson(res, 401, { error: auth.error });
         return;
       }
       const entry = await getEntry(address);
@@ -894,11 +976,15 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && p === "/api/v1/alerts/register") {
       try {
         const { register: registerSms, isValidPhone } = await import("./sms/registry.js");
+        const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+        const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
         const raw = await readBody(req);
         const body = JSON.parse(raw || "{}") as {
           address?: string;
           phone?: string;
           preferences?: Record<string, boolean>;
+          message?: string;
+          signature?: string;
         };
         const address = body.address?.trim();
         const phone = body.phone?.trim();
@@ -908,6 +994,24 @@ const server = createServer(async (req, res) => {
         }
         if (!phone || !isValidPhone(phone)) {
           apiV1Json(res, 400, { error: "Invalid or missing phone (E.164)" }, "Invalid or missing phone");
+          return;
+        }
+        const message = body.message?.trim();
+        const signature = body.signature;
+        if (!message || !signature) {
+          apiV1Json(res, 400, { error: "Wallet signature required" }, "Wallet signature required. Sign the message in your wallet to register.");
+          return;
+        }
+        const ip = getClientIp(req);
+        const rate = checkSmsRateLimit("register", address, ip);
+        if (!rate.allowed) {
+          res.statusCode = 429;
+          apiV1Json(res, 429, { error: "Too many registration attempts", retryAfterSec: rate.retryAfterSec }, "Too many attempts");
+          return;
+        }
+        const auth = await requireSignedRequest(message, signature, "register", address);
+        if (!auth.ok) {
+          apiV1Json(res, 401, { error: auth.error }, auth.error);
           return;
         }
         const prefs = body.preferences
@@ -935,11 +1039,36 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && p === "/api/v1/alerts/preferences") {
       try {
         const { updatePreferences } = await import("./sms/registry.js");
+        const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+        const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
         const raw = await readBody(req);
-        const body = JSON.parse(raw || "{}") as { address?: string; preferences?: Record<string, boolean> };
+        const body = JSON.parse(raw || "{}") as {
+          address?: string;
+          preferences?: Record<string, boolean>;
+          message?: string;
+          signature?: string;
+        };
         const address = body.address?.trim();
         if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
           apiV1Json(res, 400, { error: "Invalid or missing address" }, "Invalid or missing address");
+          return;
+        }
+        const message = body.message?.trim();
+        const signature = body.signature;
+        if (!message || !signature) {
+          apiV1Json(res, 400, { error: "Wallet signature required" }, "Wallet signature required to update preferences.");
+          return;
+        }
+        const ip = getClientIp(req);
+        const rate = checkSmsRateLimit("preferences", address, ip);
+        if (!rate.allowed) {
+          res.statusCode = 429;
+          apiV1Json(res, 429, { error: "Too many requests", retryAfterSec: rate.retryAfterSec }, "Too many attempts");
+          return;
+        }
+        const auth = await requireSignedRequest(message, signature, "preferences", address);
+        if (!auth.ok) {
+          apiV1Json(res, 401, { error: auth.error }, auth.error);
           return;
         }
         const p2 = body.preferences || {};
@@ -971,11 +1100,31 @@ const server = createServer(async (req, res) => {
         const { getEntry, recordAlertSent } = await import("./sms/registry.js");
         const { sendAlert } = await import("./sms/twilio-client.js");
         const { getTestMessage } = await import("./sms/templates.js");
+        const { requireSignedRequest } = await import("./sms/verify-wallet.js");
+        const { checkSmsRateLimit } = await import("./sms/rate-limit.js");
         const raw = await readBody(req);
-        const body = JSON.parse(raw || "{}") as { address?: string };
+        const body = JSON.parse(raw || "{}") as { address?: string; message?: string; signature?: string };
         const address = body.address?.trim();
         if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
           apiV1Json(res, 400, { error: "Invalid or missing address" }, "Invalid or missing address");
+          return;
+        }
+        const message = body.message?.trim();
+        const signature = body.signature;
+        if (!message || !signature) {
+          apiV1Json(res, 400, { error: "Wallet signature required" }, "Wallet signature required to send test SMS.");
+          return;
+        }
+        const ip = getClientIp(req);
+        const rate = checkSmsRateLimit("test", address, ip);
+        if (!rate.allowed) {
+          res.statusCode = 429;
+          apiV1Json(res, 429, { error: "Too many test SMS requests", retryAfterSec: rate.retryAfterSec }, "Too many attempts");
+          return;
+        }
+        const auth = await requireSignedRequest(message, signature, "test", address);
+        if (!auth.ok) {
+          apiV1Json(res, 401, { error: auth.error }, auth.error);
           return;
         }
         const entry = await getEntry(address);

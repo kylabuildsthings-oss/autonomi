@@ -79,23 +79,22 @@
     <main class="py-4 md:py-6 lg:py-8">
       <h1 class="page-title font-heading text-base uppercase tracking-wider mb-4 text-sand-text">User Settings</h1>
 
-      <div class="card stack">
+      <div class="card stack" id="profile-wallet-card">
         <p class="profile-section__title">Connected Wallet</p>
-        <p class="wallet-address">0x7E…39C4</p>
-        <p class="text-sm text-sand-text-muted mt-1 m-0">Circle Managed Wallets</p>
-        <a href="#" class="btn btn--secondary mt-2 inline-block no-underline min-touch flex items-center justify-center w-fit">Disconnect</a>
+        <div id="profile-wallet-disconnected">
+          <p class="text-sand-text-muted m-0">Connect your wallet using the button in the header to see your address and use the app.</p>
+        </div>
+        <div id="profile-wallet-connected" class="hidden">
+          <p id="profile-wallet-address" class="wallet-address m-0"></p>
+          <p class="text-sm text-sand-text-muted mt-1 m-0">Arc Testnet</p>
+          <button type="button" id="profile-wallet-disconnect-btn" class="btn btn--secondary mt-2 min-touch">Disconnect</button>
+        </div>
       </div>
 
       <div class="card stack mt-4">
         <p class="profile-section__title">Notification Settings</p>
-        <p class="text-base m-0 mb-2">📟 Alerts active for +1 (555) ***-1234</p>
-        <div class="toggle-row">
-          <label class="flex items-center gap-2 cursor-pointer text-base min-touch"><input type="checkbox" checked class="rounded border-sand-border w-4 h-4" /> Transaction notifications</label>
-        </div>
-        <div class="toggle-row">
-          <label class="flex items-center gap-2 cursor-pointer text-base min-touch"><input type="checkbox" checked class="rounded border-sand-border w-4 h-4" /> Account security alerts</label>
-        </div>
-        <a href="#" class="btn btn--primary mt-3 inline-block no-underline min-touch flex items-center justify-center w-fit">Sync Settings</a>
+        <p class="text-base m-0 mb-2">SMS alerts are managed on the Alerts page. Connect your wallet, then go to Alerts to register a phone number and choose which notifications you want.</p>
+        <a href="alerts.html" class="btn btn--primary mt-2 inline-block no-underline min-touch flex items-center justify-center w-fit">Manage alerts →</a>
       </div>
     </main>
   </div>
@@ -118,5 +117,49 @@
     });
   </script>
   <script src="wallet-connect.js"></script>
+  <script>
+    (function () {
+      var STORAGE_KEY = "autonomi_wallet";
+      function getAddress() {
+        var u = new URLSearchParams(window.location.search).get("address");
+        if (u && /^0x[a-fA-F0-9]{40}$/.test(u)) return u;
+        try {
+          var s = sessionStorage.getItem(STORAGE_KEY);
+          return s && /^0x[a-fA-F0-9]{40}$/.test(s) ? s : "";
+        } catch (e) { return ""; }
+      }
+      function updateProfileWallet() {
+        var addr = getAddress();
+        var disconnectedEl = document.getElementById("profile-wallet-disconnected");
+        var connectedEl = document.getElementById("profile-wallet-connected");
+        var addressEl = document.getElementById("profile-wallet-address");
+        if (!disconnectedEl || !connectedEl) return;
+        if (addr) {
+          disconnectedEl.classList.add("hidden");
+          connectedEl.classList.remove("hidden");
+          if (addressEl) addressEl.textContent = addr.slice(0, 6) + "…" + addr.slice(-4);
+        } else {
+          disconnectedEl.classList.remove("hidden");
+          connectedEl.classList.add("hidden");
+        }
+      }
+      document.addEventListener("autonomi:wallet-change", function (e) {
+        var addr = e.detail && e.detail.address;
+        if (addr) sessionStorage.setItem(STORAGE_KEY, addr);
+        else try { sessionStorage.removeItem(STORAGE_KEY); } catch (x) {}
+        updateProfileWallet();
+      });
+      var discBtn = document.getElementById("profile-wallet-disconnect-btn");
+      if (discBtn) discBtn.addEventListener("click", function () {
+        var headerBtn = document.getElementById("wallet-disconnect-btn");
+        if (headerBtn) headerBtn.click();
+      });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", updateProfileWallet);
+      } else {
+        updateProfileWallet();
+      }
+    })();
+  </script>
 </body>
 </html>

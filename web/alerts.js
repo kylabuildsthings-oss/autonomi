@@ -1,12 +1,33 @@
 /**
- * Alerts page — full SMS preference management and change number
+ * Alerts page — full SMS preference management and change number.
+ * Requires a connected wallet (URL param or sessionStorage); shows connect prompt when disconnected.
  */
 (function () {
   const params = new URLSearchParams(window.location.search);
   const API_BASE = params.get("api") || window.AUTONOMI_API_URL || "http://localhost:3000";
-  let currentAddress = params.get("address") || "";
+  const STORAGE_KEY = "autonomi_wallet";
 
-  function renderSmsStatus(data) {
+  /** True if the header shows a connected wallet (Connect button is hidden). */
+  function isWalletConnectedInHeader() {
+    var btn = document.getElementById("wallet-connect-btn");
+    return btn ? btn.classList.contains("hidden") : false;
+  }
+
+  function getCurrentAddress() {
+    if (!isWalletConnectedInHeader()) return "";
+    var q = typeof window !== "undefined" && window.location && window.location.search ? window.location.search : "";
+    var params = new URLSearchParams(q);
+    var u = params.get("address") || "";
+    if (u && /^0x[a-fA-F0-9]{40}$/.test(u)) return u;
+    try {
+      var s = sessionStorage.getItem(STORAGE_KEY);
+      return s && /^0x[a-fA-F0-9]{40}$/.test(s) ? s : "";
+    } catch (e) { return ""; }
+  }
+
+  let currentAddress = getCurrentAddress();
+
+  function renderSmsStatus(data, noWallet) {
     const statusEl = document.getElementById("sms-status-text");
     const formEl = document.getElementById("sms-register-form");
     const viewEl = document.getElementById("sms-status-view");
@@ -14,9 +35,15 @@
     const lastAlertEl = document.getElementById("sms-last-alert");
     const changeFormEl = document.getElementById("sms-change-number-form");
     if (!statusEl) return;
+    if (noWallet) {
+      statusEl.textContent = "Connect your wallet using the button in the header to view and manage SMS alerts.";
+      if (formEl) formEl.classList.add("hidden");
+      if (viewEl) viewEl.classList.add("hidden");
+      return;
+    }
     if (data === null || data === undefined) {
       statusEl.textContent = "SMS alerts: connect backend to register.";
-      if (formEl) formEl.classList.add("hidden");
+      if (formEl) formEl.classList.remove("hidden");
       if (viewEl) viewEl.classList.add("hidden");
       return;
     }
@@ -63,27 +90,39 @@
   }
 
   async function loadSmsStatus(address) {
-    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-      renderSmsStatus(null);
+    if (!isWalletConnectedInHeader()) {
+      renderSmsStatus(null, true);
+      return;
+    }
+    var addr = address || getCurrentAddress();
+    if (!addr || !/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      renderSmsStatus(null, true);
       return;
     }
     try {
-      const res = await fetch(API_BASE + "/api/sms/status?address=" + encodeURIComponent(address));
+      const res = await fetch(API_BASE + "/api/sms/status?address=" + encodeURIComponent(addr));
       const data = await res.json();
-      renderSmsStatus(data);
+      renderSmsStatus(isWalletConnectedInHeader() ? data : null, !isWalletConnectedInHeader());
     } catch {
-      renderSmsStatus(null);
+      renderSmsStatus(null, false);
     }
   }
 
-  async function ensureAddress() {
-    if (currentAddress && /^0x[a-fA-F0-9]{40}$/.test(currentAddress)) return currentAddress;
-    try {
-      const res = await fetch(API_BASE + "/api/dashboard");
-      const data = await res.json();
-      if (data.address) currentAddress = data.address;
-    } catch (e) {}
+  function ensureAddress() {
+    currentAddress = getCurrentAddress();
     return currentAddress;
+  }
+
+  /** Build message for backend verification (must match server format). */
+  function buildSmsMessage(action, address) {
+    return "Autonomi SMS: " + action + " " + address + " at " + new Date().toISOString();
+  }
+
+  /** Get signature from wallet; returns signature or throws. */
+  function signSmsMessage(address, message) {
+    var sign = typeof window !== "undefined" && window.AutonomiWallet && window.AutonomiWallet.signMessage;
+    if (!sign) return Promise.reject(new Error("Wallet not available. Connect your wallet first."));
+    return sign(address, message);
   }
 
   function bindSmsRegister() {
@@ -93,10 +132,10 @@
     if (!btn || !phoneInput) return;
 
     btn.addEventListener("click", async function () {
-      const address = await ensureAddress();
+      const address = ensureAddress();
       if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
         if (errorEl) {
-          errorEl.textContent = "Could not get wallet address. Add ?address=0x... to the URL.";
+          errorEl.textContent = "Connect your wallet first using the button in the header.";
           errorEl.classList.remove("hidden");
         }
         return;
@@ -119,10 +158,12 @@
       if (errorEl) errorEl.classList.add("hidden");
       btn.disabled = true;
       try {
+        const message = buildSmsMessage("register", address);
+        const signature = await signSmsMessage(address, message);
         const res = await fetch(API_BASE + "/api/sms/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, phone, preferences }),
+          body: JSON.stringify({ address, phone, preferences, message, signature }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -135,7 +176,7 @@
         await loadSmsStatus(address);
       } catch (e) {
         if (errorEl) {
-          errorEl.textContent = "Could not reach the API.";
+          errorEl.textContent = e && e.message ? e.message : "Could not reach the API.";
           errorEl.classList.remove("hidden");
         }
       } finally {
@@ -185,10 +226,12 @@
       if (errorEl) errorEl.classList.add("hidden");
       updateBtn.disabled = true;
       try {
+        const message = buildSmsMessage("register", address);
+        const signature = await signSmsMessage(address, message);
         const res = await fetch(API_BASE + "/api/sms/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, phone, preferences }),
+          body: JSON.stringify({ address, phone, preferences, message, signature }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -203,7 +246,7 @@
         await loadSmsStatus(address);
       } catch (e) {
         if (errorEl) {
-          errorEl.textContent = "Could not reach the API.";
+          errorEl.textContent = e && e.message ? e.message : "Could not reach the API.";
           errorEl.classList.remove("hidden");
         }
       } finally {
@@ -229,10 +272,12 @@
           testAlerts: document.getElementById("pref-testAlerts")?.checked ?? true,
         };
         try {
+          const message = buildSmsMessage("preferences", address);
+          const signature = await signSmsMessage(address, message);
           await fetch(API_BASE + "/api/sms/preferences", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address, preferences }),
+            body: JSON.stringify({ address, preferences, message, signature }),
           });
         } catch (e) {}
       });
@@ -250,10 +295,12 @@
         testMsg.classList.add("hidden");
         testBtn.disabled = true;
         try {
+          const message = buildSmsMessage("test", address);
+          const signature = await signSmsMessage(address, message);
           const res = await fetch(API_BASE + "/api/sms/test", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address }),
+            body: JSON.stringify({ address, message, signature }),
           });
           const data = await res.json().catch(() => ({}));
           if (res.ok && data.sent) {
@@ -265,7 +312,7 @@
           }
           testMsg.classList.remove("hidden");
         } catch (e) {
-          testMsg.textContent = "Could not reach the API.";
+          testMsg.textContent = e && e.message ? e.message : "Could not reach the API.";
           testMsg.classList.add("text-red-400");
           testMsg.classList.remove("hidden");
         }
@@ -275,21 +322,22 @@
   }
 
   async function init() {
-    const addressParam = params.get("address") || "";
-    if (addressParam && /^0x[a-fA-F0-9]{40}$/.test(addressParam)) {
-      currentAddress = addressParam;
-    } else {
-      await ensureAddress();
-    }
+    currentAddress = getCurrentAddress();
     await loadSmsStatus(currentAddress);
     bindSmsRegister();
     bindChangeNumber();
     bindSmsPreferencesAndTest();
+    document.addEventListener("autonomi:wallet-change", function () {
+      currentAddress = getCurrentAddress();
+      loadSmsStatus(currentAddress);
+    });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", function () {
+      setTimeout(init, 0);
+    });
   } else {
-    init();
+    setTimeout(init, 0);
   }
 })();

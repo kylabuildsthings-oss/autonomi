@@ -143,9 +143,8 @@
       setLoading(false);
       renderPrice("—");
       renderPosition(null, true);
+      renderStats(null);
       renderSmsStatus(null);
-      loadMarketPrice();
-      loadStats();
       return;
     }
 
@@ -201,8 +200,6 @@
   function refreshData() {
     var addressParam = getCurrentAddress();
     if (!addressParam || !/^0x[a-fA-F0-9]{40}$/.test(addressParam)) {
-      loadMarketPrice();
-      loadStats();
       return;
     }
     var url = API_BASE + "/api/dashboard?address=" + encodeURIComponent(addressParam);

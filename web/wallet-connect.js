@@ -173,6 +173,7 @@
           window.AutonomiDashboard.reload();
         }
         updateDashboardLinks(addr);
+        dispatchWalletChange(addr);
       })
       .catch(function (err) {
         if (err.code !== 4001) console.error("Wallet connect error", err);
@@ -184,6 +185,29 @@
         }
       });
   }
+
+  function dispatchWalletChange(address) {
+    try {
+      document.dispatchEvent(new CustomEvent("autonomi:wallet-change", { detail: { address: address || null } }));
+    } catch (e) {}
+  }
+
+  /**
+   * Sign a message with the connected wallet (for SMS auth). Resolves with hex signature or rejects.
+   * Other scripts (e.g. alerts.js) can call: AutonomiWallet.signMessage(address, message)
+   */
+  function signMessage(address, message) {
+    var info = getProvider();
+    if (!info || !address || !message) return Promise.reject(new Error("Wallet not available or missing address/message"));
+    return info.provider.request({
+      method: "personal_sign",
+      params: [message, address],
+    });
+  }
+
+  window.AutonomiWallet = {
+    signMessage: signMessage,
+  };
 
   function disconnectWallet() {
     sessionStorage.removeItem(STORAGE_KEY);
@@ -199,6 +223,7 @@
       if (typeof window.AutonomiDashboard.reload === "function") window.AutonomiDashboard.reload();
     }
     updateDashboardLinks(null);
+    dispatchWalletChange(null);
   }
 
   function updateDashboardLinks(address) {
@@ -230,6 +255,7 @@
     } else {
       setWalletUI(false);
     }
+    dispatchWalletChange(address && /^0x[a-fA-F0-9]{40}$/.test(address) ? address : null);
   }
 
   if (document.readyState === "loading") {
