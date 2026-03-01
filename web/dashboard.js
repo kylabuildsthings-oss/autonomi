@@ -246,65 +246,13 @@
     return addressParam || (window.AutonomiDashboard && window.AutonomiDashboard._lastAddress) || stored || "";
   }
 
-  function setWalletUI(connected, address) {
-    var btn = document.getElementById("wallet-connect-btn");
-    var addrEl = document.getElementById("wallet-address");
-    var discBtn = document.getElementById("wallet-disconnect-btn");
-    if (!btn || !addrEl || !discBtn) return;
-    if (connected && address) {
-      btn.classList.add("hidden");
-      addrEl.textContent = address.slice(0, 6) + "…" + address.slice(-4);
-      addrEl.classList.remove("hidden");
-      discBtn.classList.remove("hidden");
-    } else {
-      btn.classList.remove("hidden");
-      addrEl.classList.add("hidden");
-      discBtn.classList.add("hidden");
-    }
-  }
-
-  function connectWallet() {
-    if (!window.ethereum) {
-      alert("No wallet found. Install MetaMask or another Web3 wallet.");
-      return;
-    }
-    window.ethereum.request({ method: "eth_requestAccounts" }).then(function (accounts) {
-      if (accounts && accounts[0]) {
-        var addr = accounts[0];
-        if (typeof sessionStorage !== "undefined") sessionStorage.setItem("autonomi_wallet", addr);
-        window.AutonomiDashboard._lastAddress = addr;
-        var params = new URLSearchParams(window.location.search);
-        params.set("address", addr);
-        var newUrl = window.location.pathname + "?" + params.toString();
-        window.history.replaceState({}, "", newUrl);
-        setWalletUI(true, addr);
-        load();
-      }
-    }).catch(function (err) {
-      if (err.code !== 4001) console.error("Wallet connect error", err);
-    });
-  }
-
-  function disconnectWallet() {
-    if (typeof sessionStorage !== "undefined") sessionStorage.removeItem("autonomi_wallet");
-    var params = new URLSearchParams(window.location.search);
-    params.delete("address");
-    var newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
-    window.history.replaceState({}, "", newUrl);
-    window.AutonomiDashboard._lastAddress = "";
-    setWalletUI(false);
-    load();
-  }
-
   function bindWalletConnect() {
-    var btn = document.getElementById("wallet-connect-btn");
-    var discBtn = document.getElementById("wallet-disconnect-btn");
-    var posBtn = document.getElementById("wallet-connect-position-btn");
-    if (btn) btn.addEventListener("click", connectWallet);
-    if (discBtn) discBtn.addEventListener("click", disconnectWallet);
-    if (posBtn) posBtn.addEventListener("click", connectWallet);
     var addressParam = new URLSearchParams(window.location.search).get("address") || "";
-    if (addressParam && /^0x[a-fA-F0-9]{40}$/.test(addressParam)) setWalletUI(true, addressParam);
+    var stored = (typeof sessionStorage !== "undefined" && sessionStorage.getItem("autonomi_wallet")) || "";
+    var address = addressParam || stored || "";
+    if (address && /^0x[a-fA-F0-9]{40}$/.test(address)) {
+      if (window.AutonomiDashboard) window.AutonomiDashboard._lastAddress = address;
+    }
   }
 
   function bindSmsPreferencesAndTest() {
